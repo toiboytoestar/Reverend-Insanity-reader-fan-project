@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TiltCover from "@/components/TiltCover";
+import BookCover from "@/components/BookCover";
 import { ARCS, getArc } from "@/lib/volumes";
 
 const HERO_IMG =
@@ -109,8 +110,7 @@ export default function TocPage() {
             <div className="relative">
               <div className="absolute -inset-6 orange-halo opacity-40 blur-2xl pointer-events-none" />
               <TiltCover className="relative aspect-[3/4] rounded-md overflow-hidden ring-1 ring-white/10 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.8)] max-w-[280px] mx-auto lg:mx-0 cursor-pointer">
-                <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                <BookCover />
               </TiltCover>
             </div>
 

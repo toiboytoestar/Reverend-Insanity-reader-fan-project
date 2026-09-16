@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -50,18 +50,65 @@
 
 /* Typography helpers */
 .font-display {
-    font-family: 'Cormorant Garamond', 'Cinzel Decorative', serif;
+    font-family: 'Cormorant Garamond', 'EB Garamond', 'Cinzel Decorative', serif;
     letter-spacing: 0.005em;
     font-weight: 600;
 }
+.font-editorial {
+    font-family: 'EB Garamond', 'Cormorant Garamond', 'Spectral', Georgia, serif;
+    font-weight: 500;
+}
 .font-label {
     font-family: 'Cinzel', 'Outfit', sans-serif;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
+    font-weight: 500;
 }
-.font-body-serif { font-family: 'Cormorant Garamond', 'Spectral', Georgia, serif; }
+.font-body-serif { font-family: 'EB Garamond', 'Cormorant Garamond', 'Spectral', Georgia, serif; }
 .font-body-sans { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
 .font-body-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Small caps */
+.small-caps {
+    font-variant: all-small-caps;
+    letter-spacing: 0.14em;
+}
+
+/* Editorial ornaments */
+.ornament-row {
+    display: flex; align-items: center; gap: 12px;
+    color: rgba(201, 164, 94, 0.55);
+}
+.ornament-row::before,
+.ornament-row::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201, 164, 94, 0.35), transparent);
+}
+.ornament-glyph {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+/* Drop cap for editorial body */
+.drop-cap::first-letter {
+    font-family: 'EB Garamond', 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 3.4em;
+    line-height: 0.9;
+    float: left;
+    margin: 0.08em 0.12em 0 0;
+    color: #C9A45E;
+    letter-spacing: -0.02em;
+}
+
+/* Gold border helper */
+.gold-hairline { border: 1px solid rgba(201, 164, 94, 0.28); }
+.text-gold { color: #C9A45E; }
+.bg-gold-tint { background: rgba(201, 164, 94, 0.08); }
 
 /* Beyonder-style mystical fog vortex background — CSS only, no image dependency */
 .fog-bg {

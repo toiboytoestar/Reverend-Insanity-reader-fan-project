@@ -18,6 +18,7 @@ import { TID } from "@/lib/testIds";
 import { Button } from "@/components/ui/button";
 import { Heart, Info, ScrollText, Download, ArrowRight, BookOpen } from "lucide-react";
 import TiltCover from "@/components/TiltCover";
+import BookCover from "@/components/BookCover";
 import { RankCard, StreakCard } from "@/components/EngagementCards";
 
 const HERO_IMG =
@@ -94,8 +95,7 @@ export default function LandingPage() {
           >
             <div className="absolute -inset-8 orange-halo opacity-70 blur-2xl" />
             <TiltCover className="relative aspect-[3/4] w-[260px] sm:w-[320px] rounded-md overflow-hidden shadow-[0_40px_80px_-25px_rgba(0,0,0,0.9)] ring-1 ring-white/10 cursor-pointer">
-              <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+              <BookCover />
             </TiltCover>
           </motion.div>
 
@@ -104,20 +104,33 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
           >
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-orange-300 leading-[1.05]">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="font-label text-[9px] text-gold">Official Digital Edition</span>
+              <span className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(201,164,94,0.4), transparent)" }} />
+              <span className="font-body-mono text-[10px] text-slate-500 tabular">MMXXVI</span>
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-orange-300 leading-[1.02]">
               Reverend Insanity
             </h1>
-            <p className="mt-2 font-label text-[10px] text-slate-400">
-              蛊真人 · Gu Zhen Ren
-            </p>
+            <div className="mt-1 flex items-center gap-3 font-label text-[10px] text-slate-400">
+              <span>蛊真人</span>
+              <span className="text-slate-600">·</span>
+              <span>Gu Zhen Ren</span>
+              <span className="text-slate-600">·</span>
+              <span className="text-gold">2,334 Chapters</span>
+            </div>
 
-            <div className="mt-8 max-w-2xl">
+            <div className="mt-6 ornament-row">
+              <span className="ornament-glyph">❦</span>
+            </div>
+
+            <div className="mt-6 max-w-2xl">
               <p className="font-body-serif text-slate-300 text-lg leading-relaxed italic">
                 &ldquo;Humans are clever in tens of thousands of ways, Gu are the
                 true refined essences of Heaven and Earth. The Three Temples are
                 unrighteous, the demon is reborn.&rdquo;
               </p>
-              <p className="mt-4 font-body-serif text-slate-400 text-base leading-relaxed">
+              <p className="mt-5 font-body-serif text-slate-400 text-base leading-relaxed drop-cap">
                 {novel?.synopsis?.split(".").slice(1, 3).join(".").trim() ||
                   "Reincarnated after five hundred years, Fang Yuan returns to his youth with the memories of an era."}
               </p>
