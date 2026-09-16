@@ -25,16 +25,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TiltCover from "@/components/TiltCover";
+import { ARCS, getArc } from "@/lib/volumes";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
 
-// Approximate volume grouping for Reverend Insanity's 2334 chapters
-const VOLUME_SIZE = 260;
-const volumeOf = (chapterNumber, index) => {
-  const n = chapterNumber ?? index;
-  return Math.max(1, Math.ceil(n / VOLUME_SIZE));
-};
+// Chapters are grouped by the seven Reverend Insanity regional arcs
+// (see /lib/volumes.js).
 
 const FILTERS = [
   { id: "all", label: "All", testid: TID.chapterFilterAll },
@@ -47,7 +44,7 @@ export default function TocPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
-  const [volume, setVolume] = useState("all");
+  const [arc, setArc] = useState("all");
   const [sortDesc, setSortDesc] = useState(false);
   const [progress, setProgressState] = useState({});
   const [bookmarks, setBookmarks] = useState([]);
@@ -63,11 +60,6 @@ export default function TocPage() {
   const { data: novel } = useSWR("novel", fetchNovel);
   const { data } = useSWR(["all-chapters"], () => fetchChapters({}));
   const all = data?.items || [];
-
-  const totalVolumes = useMemo(() => {
-    if (!novel) return 9;
-    return Math.max(1, Math.ceil(novel.total_chapters / VOLUME_SIZE));
-  }, [novel]);
 
   const filtered = useMemo(() => {
     let list = all;
@@ -86,19 +78,19 @@ export default function TocPage() {
       const bset = new Set(bookmarks.map((b) => b.chapterId));
       list = list.filter((c) => bset.has(c.id));
     }
-    if (volume !== "all") {
-      const v = parseInt(volume, 10);
-      list = list.filter((c) => volumeOf(c.chapter_number, c.index) === v);
+    if (arc !== "all") {
+      const arcId = parseInt(arc, 10);
+      list = list.filter((c) => getArc(c.chapter_number, c.index).id === arcId);
     }
     if (sortDesc) list = [...list].reverse();
     return list;
-  }, [all, query, filter, volume, sortDesc, progress, bookmarks]);
+  }, [all, query, filter, arc, sortDesc, progress, bookmarks]);
 
   const shown = filtered.slice(0, visibleCount);
 
   useEffect(() => {
     setVisibleCount(120);
-  }, [query, filter, volume, sortDesc]);
+  }, [query, filter, arc, sortDesc]);
 
   return (
     <div className="fog-bg min-h-[calc(100vh-72px)] relative">
@@ -185,32 +177,46 @@ export default function TocPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
-                    className="h-10 px-3 min-w-[130px] bg-white/5 border border-white/10 rounded-md flex items-center justify-between text-slate-200 hover:border-orange-400/40 text-sm"
+                    className="h-10 px-3 min-w-[170px] bg-white/5 border border-white/10 rounded-md flex items-center justify-between text-slate-200 hover:border-orange-400/40 text-sm"
                     data-testid="volume-selector"
                   >
-                    <span className="font-label text-[11px] text-orange-300">
-                      {volume === "all" ? "ALL VOLUMES" : `VOLUME ${volume}`}
+                    <span className="font-label text-[11px] text-orange-300 truncate">
+                      {arc === "all"
+                        ? "ALL ARCS"
+                        : ARCS.find((a) => String(a.id) === arc)?.name.toUpperCase()}
                     </span>
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                    <ChevronDown className="w-4 h-4 text-slate-500 shrink-0 ml-2" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="bg-[#0E1116] border-white/10 text-slate-200 max-h-72 overflow-y-auto"
+                  className="bg-[#0E1116] border-white/10 text-slate-200 w-[260px]"
                   align="end"
                 >
                   <DropdownMenuItem
-                    onSelect={() => setVolume("all")}
-                    className="font-label text-[11px] focus:bg-orange-500/15 focus:text-orange-200"
+                    onSelect={() => setArc("all")}
+                    className="focus:bg-orange-500/15 focus:text-orange-200"
+                    data-testid="arc-option-all"
                   >
-                    ALL VOLUMES
+                    <span className="font-label text-[11px]">ALL ARCS</span>
+                    <span className="ml-auto font-body-mono text-[10px] text-slate-500">
+                      Ch 1 – 2,334
+                    </span>
                   </DropdownMenuItem>
-                  {Array.from({ length: totalVolumes }, (_, i) => i + 1).map((v) => (
+                  {ARCS.map((a) => (
                     <DropdownMenuItem
-                      key={v}
-                      onSelect={() => setVolume(String(v))}
-                      className="font-label text-[11px] focus:bg-orange-500/15 focus:text-orange-200"
+                      key={a.id}
+                      onSelect={() => setArc(String(a.id))}
+                      className="focus:bg-orange-500/15 focus:text-orange-200"
+                      data-testid={`arc-option-${a.id}`}
                     >
-                      VOLUME {v}
+                      <span
+                        className="inline-block w-1.5 h-1.5 rounded-full mr-2"
+                        style={{ background: a.hue }}
+                      />
+                      <span className="font-body-serif text-sm">{a.name}</span>
+                      <span className="ml-auto font-body-mono text-[10px] text-slate-500">
+                        Ch {a.start.toLocaleString()}–{a.end.toLocaleString()}
+                      </span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -256,7 +262,7 @@ export default function TocPage() {
                     const read = !!p?.completed;
                     const inProgress = !read && !!p?.pct;
                     const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
-                    const vol = volumeOf(c.chapter_number, c.index);
+                    const currentArc = getArc(c.chapter_number, c.index);
                     return (
                       <Link
                         key={c.id}
@@ -281,8 +287,15 @@ export default function TocPage() {
                           ) : (
                             <Circle className="w-4 h-4 text-slate-700" />
                           )}
-                          <div className="font-label text-[10px] text-slate-500 min-w-[60px]">
-                            VOLUME {vol}
+                          <div
+                            className="font-label text-[10px] min-w-[130px] flex items-center gap-1.5 justify-end"
+                            style={{ color: `${currentArc.hue}CC` }}
+                          >
+                            <span
+                              className="inline-block w-1.5 h-1.5 rounded-full"
+                              style={{ background: currentArc.hue }}
+                            />
+                            {currentArc.short.toUpperCase()}
                           </div>
                         </div>
                       </Link>
