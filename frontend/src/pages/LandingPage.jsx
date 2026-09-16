@@ -105,7 +105,7 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.1 }}
           >
             <div className="flex items-center gap-3 mb-4">
-              <span className="font-label text-[9px] text-gold">Official Digital Edition</span>
+              <span className="font-label text-[9px] text-gold">A Fan Reader Edition</span>
               <span className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(201,164,94,0.4), transparent)" }} />
               <span className="font-body-mono text-[10px] text-slate-500 tabular">MMXXVI</span>
             </div>

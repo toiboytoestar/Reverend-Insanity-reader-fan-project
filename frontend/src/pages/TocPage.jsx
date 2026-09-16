@@ -90,6 +90,32 @@ export default function TocPage() {
 
   const shown = filtered.slice(0, visibleCount);
 
+  // Group visible chapters by arc, and compute per-arc progress from ALL chapters
+  const arcProgress = useMemo(() => {
+    const map = {};
+    for (const c of all) {
+      const a = getArc(c.chapter_number, c.index);
+      if (!map[a.id]) map[a.id] = { total: 0, read: 0 };
+      map[a.id].total++;
+      if (progress[c.id]?.completed) map[a.id].read++;
+    }
+    return map;
+  }, [all, progress]);
+
+  const groupedShown = useMemo(() => {
+    const groups = [];
+    let current = null;
+    for (const c of shown) {
+      const a = getArc(c.chapter_number, c.index);
+      if (!current || current.arc.id !== a.id) {
+        current = { arc: a, chapters: [] };
+        groups.push(current);
+      }
+      current.chapters.push(c);
+    }
+    return groups;
+  }, [shown]);
+
   useEffect(() => {
     setVisibleCount(120);
   }, [query, filter, arc, sortDesc]);
@@ -257,86 +283,115 @@ export default function TocPage() {
               </div>
             ) : (
               <>
-                <div className="space-y-1.5">
-                  {(() => {
-                    const rows = [];
-                    let prevArcId = null;
-                    shown.forEach((c) => {
-                      const currentArc = getArc(c.chapter_number, c.index);
-                      if (currentArc.id !== prevArcId) {
-                        rows.push(
-                          <div
-                            key={`arc-${currentArc.id}-${c.id}`}
-                            data-testid={`arc-banner-${currentArc.id}`}
-                            className="relative flex items-center gap-4 rounded-md overflow-hidden px-5 py-4 mt-4 first:mt-0 border"
-                            style={{
-                              borderColor: `${currentArc.hue}33`,
-                              background: `linear-gradient(90deg, ${currentArc.hue}12 0%, ${currentArc.hue}04 40%, transparent 100%)`,
-                            }}
-                          >
-                            <span
-                              className="w-2.5 h-2.5 rounded-full shrink-0"
-                              style={{ background: currentArc.hue, boxShadow: `0 0 12px ${currentArc.hue}88` }}
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div
-                                className="font-label text-[10px] tracking-widest"
-                                style={{ color: currentArc.hue }}
-                              >
-                                ARC {toRoman(currentArc.id)} · REGIONAL SAGA
-                              </div>
-                              <div className="mt-0.5 font-display text-lg sm:text-xl text-slate-100 truncate">
-                                {currentArc.name}
-                              </div>
-                            </div>
-                            <div className="hidden sm:block text-right shrink-0">
-                              <div className="font-body-mono text-[11px] tabular text-slate-300">
-                                Chapters {currentArc.start.toLocaleString()}
-                                <span className="text-slate-600 mx-1">–</span>
-                                {currentArc.end.toLocaleString()}
-                              </div>
-                              <div className="font-label text-[9px] text-slate-500 mt-0.5">
-                                {(currentArc.end - currentArc.start + 1).toLocaleString()} chapters
-                              </div>
-                            </div>
-                          </div>
-                        );
-                        prevArcId = currentArc.id;
-                      }
-                      const p = progress[c.id];
-                      const read = !!p?.completed;
-                      const inProgress = !read && !!p?.pct;
-                      const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
-                      rows.push(
-                        <Link
-                          key={c.id}
-                          to={`/read/${c.id}`}
-                          data-testid={TID.chapterListItem(c.id)}
-                          className="group flex items-center gap-4 rounded-md border border-white/5 bg-white/[0.02] hover:bg-orange-500/[0.04] hover:border-orange-400/25 p-4 sm:px-5 transition-colors"
+                <div className="space-y-6">
+                  {groupedShown.map((group) => {
+                    const a = group.arc;
+                    const stats = arcProgress[a.id] || { total: a.end - a.start + 1, read: 0 };
+                    const pct = stats.total ? stats.read / stats.total : 0;
+                    const size = 44;
+                    const stroke = 4;
+                    const rad = (size - stroke) / 2;
+                    const circ = 2 * Math.PI * rad;
+                    const dash = circ * pct;
+                    return (
+                      <section key={a.id} data-testid={`arc-section-${a.id}`} className="relative">
+                        {/* Sticky arc banner */}
+                        <div
+                          data-testid={`arc-banner-${a.id}`}
+                          className="sticky top-[148px] z-10 flex items-center gap-4 rounded-md overflow-hidden px-5 py-4 border backdrop-blur-md"
+                          style={{
+                            borderColor: `${a.hue}33`,
+                            background: `linear-gradient(90deg, ${a.hue}18 0%, rgba(10,12,16,0.85) 60%)`,
+                          }}
                         >
+                          <span
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ background: a.hue, boxShadow: `0 0 12px ${a.hue}AA` }}
+                          />
                           <div className="flex-1 min-w-0">
-                            <div className="font-label text-[10px] text-orange-300/90 tracking-widest">
-                              CHAPTER {c.chapter_number ?? c.index}
+                            <div
+                              className="font-label text-[10px] tracking-widest"
+                              style={{ color: a.hue }}
+                            >
+                              ARC {toRoman(a.id)} · REGIONAL SAGA
                             </div>
-                            <div className="mt-1 font-body-serif text-lg sm:text-xl text-slate-100 truncate">
-                              {c.title.replace(/^chapter\s+\d+\s*[-–—:]\s*/i, "")}
+                            <div className="mt-0.5 font-display text-lg sm:text-xl text-slate-100 truncate">
+                              {a.name}
                             </div>
                           </div>
-                          <div className="hidden sm:flex items-center gap-3 text-right">
-                            {bookmarked && <Bookmark className="w-3.5 h-3.5 text-orange-300" />}
-                            {read ? (
-                              <Check className="w-4 h-4 text-orange-300" />
-                            ) : inProgress ? (
-                              <CircleDot className="w-4 h-4 text-orange-300/70" />
-                            ) : (
-                              <Circle className="w-4 h-4 text-slate-700" />
-                            )}
+                          <div className="hidden sm:block text-right shrink-0">
+                            <div className="font-body-mono text-[11px] tabular text-slate-300">
+                              Ch {a.start.toLocaleString()}
+                              <span className="text-slate-600 mx-1">–</span>
+                              {a.end.toLocaleString()}
+                            </div>
+                            <div className="font-label text-[9px] text-slate-500 mt-0.5">
+                              {stats.total.toLocaleString()} chapters
+                            </div>
                           </div>
-                        </Link>
-                      );
-                    });
-                    return rows;
-                  })()}
+                          <div className="relative shrink-0" data-testid={`arc-progress-${a.id}`}>
+                            <svg width={size} height={size} className="-rotate-90">
+                              <circle cx={size / 2} cy={size / 2} r={rad} stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} fill="none" />
+                              <circle
+                                cx={size / 2}
+                                cy={size / 2}
+                                r={rad}
+                                stroke={a.hue}
+                                strokeWidth={stroke}
+                                fill="none"
+                                strokeDasharray={`${dash} ${circ - dash}`}
+                                strokeLinecap="round"
+                                style={{ transition: "stroke-dasharray 400ms cubic-bezier(0.2,0.8,0.2,1)" }}
+                              />
+                            </svg>
+                            <div className="absolute inset-0 grid place-items-center">
+                              <div className="font-body-mono text-[10px] tabular text-slate-100 leading-none text-center">
+                                <div>{stats.read}</div>
+                                <div className="text-slate-500 text-[8px]">/ {stats.total}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Chapter rows inside this arc */}
+                        <div className="mt-2 space-y-1.5">
+                          {group.chapters.map((c) => {
+                            const p = progress[c.id];
+                            const read = !!p?.completed;
+                            const inProgress = !read && !!p?.pct;
+                            const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
+                            return (
+                              <Link
+                                key={c.id}
+                                to={`/read/${c.id}`}
+                                data-testid={TID.chapterListItem(c.id)}
+                                className="group flex items-center gap-4 rounded-md border border-white/5 bg-white/[0.02] hover:bg-orange-500/[0.04] hover:border-orange-400/25 p-4 sm:px-5 transition-colors"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-label text-[10px] text-orange-300/90 tracking-widest">
+                                    CHAPTER {c.chapter_number ?? c.index}
+                                  </div>
+                                  <div className="mt-1 font-body-serif text-lg sm:text-xl text-slate-100 truncate">
+                                    {c.title.replace(/^chapter\s+\d+\s*[-–—:]\s*/i, "")}
+                                  </div>
+                                </div>
+                                <div className="hidden sm:flex items-center gap-3 text-right">
+                                  {bookmarked && <Bookmark className="w-3.5 h-3.5 text-orange-300" />}
+                                  {read ? (
+                                    <Check className="w-4 h-4 text-orange-300" />
+                                  ) : inProgress ? (
+                                    <CircleDot className="w-4 h-4 text-orange-300/70" />
+                                  ) : (
+                                    <Circle className="w-4 h-4 text-slate-700" />
+                                  )}
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    );
+                  })}
                 </div>
                 {visibleCount < filtered.length && (
                   <div className="mt-8 text-center">

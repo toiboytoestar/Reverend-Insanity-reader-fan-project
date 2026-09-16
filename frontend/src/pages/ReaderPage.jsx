@@ -18,6 +18,8 @@ import { useReaderSettings, widthMap, fontFamilyMap } from "@/context/ReaderSett
 import ReaderSettingsPanel from "@/components/ReaderSettingsPanel";
 import TocDrawer from "@/components/TocDrawer";
 import KeyboardShortcutsModal from "@/components/KeyboardShortcutsModal";
+import QuoteCardModal from "@/components/QuoteCardModal";
+import { getArc } from "@/lib/volumes";
 import { TID } from "@/lib/testIds";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +35,7 @@ import {
   Home,
   Maximize2,
   Minimize2,
+  Quote,
 } from "lucide-react";
 
 const WIDTH_ORDER = ["narrow", "medium", "wide", "full"];
@@ -48,6 +51,9 @@ export default function ReaderPage() {
   const [bookmarked, setBookmarked] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
   const [distractionFree, setDistractionFree] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [quoteText, setQuoteText] = useState("");
+  const [floatingQuote, setFloatingQuote] = useState(null); // { text, x, y }
   const restoredRef = useRef(false);
   const contentRef = useRef(null);
 
@@ -203,6 +209,46 @@ export default function ReaderPage() {
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
+
+  // Detect text selection inside chapter content -> show a floating "Share Quote" button
+  useEffect(() => {
+    if (!chapter) return;
+    const onSelect = () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        setFloatingQuote(null);
+        return;
+      }
+      const text = sel.toString().trim();
+      if (text.length < 12) {
+        setFloatingQuote(null);
+        return;
+      }
+      // Confirm selection is inside the chapter content
+      const range = sel.getRangeAt(0);
+      const container = contentRef.current;
+      if (!container || !container.contains(range.commonAncestorContainer)) {
+        setFloatingQuote(null);
+        return;
+      }
+      const rect = range.getBoundingClientRect();
+      setFloatingQuote({
+        text: text.slice(0, 400),
+        x: rect.left + rect.width / 2 + window.scrollX,
+        y: rect.top + window.scrollY - 12,
+      });
+    };
+    document.addEventListener("selectionchange", onSelect);
+    return () => document.removeEventListener("selectionchange", onSelect);
+  }, [chapter?.id]);
+
+  const openQuoteFromSelection = useCallback(() => {
+    if (!floatingQuote) return;
+    setQuoteText(floatingQuote.text);
+    setQuoteOpen(true);
+    setFloatingQuote(null);
+    window.getSelection()?.removeAllRanges();
+  }, [floatingQuote]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -461,6 +507,33 @@ export default function ReaderPage() {
       <ReaderSettingsPanel open={settingsOpen} onOpenChange={setSettingsOpen} />
       <TocDrawer open={tocOpen} onOpenChange={setTocOpen} currentId={chapter?.id} />
       <KeyboardShortcutsModal open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+
+      {/* Floating "Share Quote" button appearing above the selected text */}
+      {floatingQuote && !distractionFree && (
+        <button
+          data-testid="floating-quote-btn"
+          onClick={openQuoteFromSelection}
+          onMouseDown={(e) => e.preventDefault()}
+          style={{
+            position: "absolute",
+            left: floatingQuote.x,
+            top: floatingQuote.y,
+            transform: "translate(-50%, -100%)",
+          }}
+          className="z-40 rounded-full bg-orange-400 hover:bg-orange-300 text-slate-950 font-medium text-xs px-4 h-9 shadow-[0_10px_30px_-10px_rgba(236,139,96,0.7)] flex items-center gap-2"
+        >
+          <Quote className="w-3.5 h-3.5" />
+          Share quote
+        </button>
+      )}
+
+      <QuoteCardModal
+        open={quoteOpen}
+        onOpenChange={setQuoteOpen}
+        quote={quoteText}
+        chapter={chapter}
+        arc={chapter ? getArc(chapter.chapter_number, chapter.index) : null}
+      />
     </div>
   );
 }

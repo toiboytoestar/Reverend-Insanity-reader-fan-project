@@ -12,7 +12,7 @@ export default function BookCover({ className = "" }) {
     <div className={`relative w-full h-full ${className}`}>
       <img
         src={HERO_IMG}
-        alt="Reverend Insanity — Official Edition"
+        alt="Reverend Insanity — Fan Reader Edition"
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
       />
       {/* Vignette */}
@@ -33,7 +33,7 @@ export default function BookCover({ className = "" }) {
           <div className="absolute top-1/2 right-2 -translate-y-1/2 text-[10px]" style={{ color: "rgba(201, 164, 94, 0.6)" }}>❖</div>
 
           <div className="font-label text-[8px] text-gold/80" style={{ color: "rgba(201, 164, 94, 0.75)" }}>
-            OFFICIAL EDITION
+            FAN EDITION
           </div>
           <div className="mt-3 font-display text-[clamp(1.4rem,3.2vw,2.6rem)] leading-[1.02] tracking-wide" style={{ color: "#F1E4C6" }}>
             Reverend
