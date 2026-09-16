@@ -1,0 +1,150 @@
+{
+  "project_name": "Reverend Insanity Reader (Gu Master Reader)",
+  "app_type": "hybrid_fullstack",
+  "design_archetype": "Xianxia Dark Fantasy / Ancient Gu Cultivation",
+  "theme_philosophy": "Deep Obsidian Void combined with Jade Spirit Glow and Crimson Blood Gu accents. Atmospheric, mystical, ruthless, and distraction-free reader experience inspired by LOTM and ORV readers.",
+  "responsive": {
+    "breakpoint": "Mobile-first approach. Default layout tailored for mobile touch screens (360px+), scaling gracefully to tablets (768px+) and desktop widescreen (1280px+).",
+    "layout": "Single-column stacked view on mobile. Dynamic side drawers for Table of Contents and Settings on mobile/tablet, expanding into collapsible sidebars on desktop. Floating bottom reader action bar for one-handed mobile reading.",
+    "typography": "Mobile base size 16px (1rem) for body reading to avoid auto-zoom on inputs; headings fluidly scale from 1.75rem on mobile to 3rem on desktop using clamp() functions.",
+    "overflow_guard": "Strict overflow-x-hidden on root and container elements; reader text container constrained with max-w-[65ch] to max-w-[100ch] dependent on reader width settings.",
+    "tap_targets": "Minimum 44px x 44px touch target sizes for mobile reader navigation buttons, font size modifiers, and chapter navigation controls."
+  },
+  "typography": {
+    "headings_display": "'Cinzel Decorative', 'Cormorant Garamond', 'Playfair Display', serif",
+    "reading_body_serif": "'Cormorant Garamond', 'Spectral', 'Merriweather', 'Georgia', serif",
+    "reading_body_sans": "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif",
+    "reading_body_mono": "'JetBrains Mono', 'Fira Code', monospace",
+    "labels_ui": "'Cinzel', 'Outfit', sans-serif",
+    "scale": {
+      "hero_title": "text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wider",
+      "section_h2": "text-xl sm:text-3xl font-semibold tracking-wide",
+      "chapter_h3": "text-lg sm:text-2xl font-medium",
+      "body_reader": "text-base sm:text-lg lg:text-xl leading-relaxed sm:leading-loose",
+      "caption_ui": "text-xs sm:text-sm uppercase tracking-widest"
+    }
+  },
+  "colors": {
+    "app_shell_dark": {
+      "bg_void": "#0B0D0E",
+      "bg_card": "#13171A",
+      "bg_elevated": "#1A2024",
+      "border_subtle": "rgba(255, 255, 255, 0.08)",
+      "border_jade": "rgba(16, 185, 129, 0.3)",
+      "text_primary": "#E2E8F0",
+      "text_secondary": "#94A3B8",
+      "text_muted": "#64748B",
+      "accent_jade": "#10B981",
+      "accent_jade_glow": "rgba(16, 185, 129, 0.15)",
+      "accent_crimson": "#E11D48",
+      "accent_amber": "#F59E0B"
+    },
+    "reading_themes": {
+      "dark": {
+        "id": "dark",
+        "name": "Gu Abyss (Dark)",
+        "bg": "#0B0D0E",
+        "card_bg": "#14181B",
+        "text": "#E2E8F0",
+        "muted_text": "#94A3B8",
+        "border": "#222C33",
+        "accent": "#10B981",
+        "highlight": "#1E3A2B"
+      },
+      "sepia": {
+        "id": "sepia",
+        "name": "Ancient Scroll (Sepia)",
+        "bg": "#FBF0D9",
+        "card_bg": "#F3E3C3",
+        "text": "#2C2218",
+        "muted_text": "#78624C",
+        "border": "#E2CFA8",
+        "accent": "#B45309",
+        "highlight": "#F0DCB0"
+      },
+      "light": {
+        "id": "light",
+        "name": "Imperial Jade (Light)",
+        "bg": "#FAFAFA",
+        "card_bg": "#FFFFFF",
+        "text": "#0F172A",
+        "muted_text": "#475569",
+        "border": "#E2E8F0",
+        "accent": "#059669",
+        "highlight": "#D1FAE5"
+      },
+      "black": {
+        "id": "black",
+        "name": "Void Realm (Pure Black)",
+        "bg": "#000000",
+        "card_bg": "#0A0A0A",
+        "text": "#D1D5DB",
+        "muted_text": "#6B7280",
+        "border": "#1F2937",
+        "accent": "#06B6D4",
+        "highlight": "#111827"
+      }
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-black/70 border border-emerald-500/20 shadow-2xl",
+    "border_styles": "1px solid rgba(16, 185, 129, 0.15) with subtle hover glow",
+    "box_shadows": {
+      "jade_glow": "0 0 25px rgba(16, 185, 129, 0.12)",
+      "crimson_glow": "0 0 25px rgba(225, 29, 72, 0.15)",
+      "card_lift": "0 10px 30px -10px rgba(0, 0, 0, 0.5)"
+    },
+    "textures": "Subtle ink noise texture background, ancient seal icons, jade stone borders"
+  },
+  "grids_and_layouts": {
+    "landing_page": {
+      "hero_layout": "Grid split: Left column (Hero Title, Novel Badges, Quick Stats [2334+ Chapters, 5/5 Rank, Completed], Synopsis, Continue Reading CTA), Right column (3D-effect Book Cover with Jade Aura)",
+      "stats_grid": "4-column metric grid (Chapters Read, Total Words, Cultivation Rank, Community Rating)",
+      "feature_highlights": "3-column bento card grid showcasing Reader Features (Distraction Free, Offline Progress, Custom Themes, Quick Bookmark)"
+    },
+    "table_of_contents": {
+      "search_bar": "Sticky search + filter bar (Search chapter # or title, Filter: All / Unread / Read / Bookmarked, Volume selector dropdown)",
+      "chapter_grid": "Grid 1-col on mobile, 2-col on md, 3-col on lg with compact chapter cards showing Chapter #, Title, Reading status indicator, Bookmark toggle, Last read timestamp"
+    },
+    "reader_view": {
+      "structure": "Fixed Header with Progress Bar, Collapsible ToC Drawer on Left, Floating/Sticky Settings Modal on Right, Main Centered Reading Column (Width adjustable: 600px, 800px, 1000px, Full)",
+      "bottom_navigation": "Sticky/Floating bottom toolbar on mobile with Prev Chapter, Next Chapter, Settings, Bookmark, ToC, Scroll to Top"
+    }
+  },
+  "key_features": {
+    "novel_cover_page": "Rich landing view with Reverend Insanity introduction, Fang Yuan quote, tags (Cultivation, Dark Fantasy, Anti-Hero, Time Travel, Gu Refining), volume breakdown",
+    "chapter_reader": "Fast client-side chapter loading with smooth scroll restoration, page progress indicator, chapter title sticky header, estimated reading time indicator",
+    "reading_settings": "Comprehensive customization modal: Font Family (Serif, Sans, Mono), Font Size (12px to 32px), Line Height (1.2 to 2.2), Letter Spacing, Container Width (Narrow/Medium/Wide/Full), Theme Switcher (Dark, Sepia, Light, Black), Auto-Scroll Mode with speed control",
+    "bookmark_system": "Save specific chapters with optional custom notes or highlighted quotes stored in LocalStorage, managed from a dedicated Bookmarks Page",
+    "progress_tracking": "Automatic saving of last read chapter, scroll position offset percentage, chapter completion status (unread/in-progress/read)",
+    "table_of_contents_drawer": "Quick-access slide-out panel while reading to jump to any chapter instantly without losing state",
+    "search_and_filter": "Instant search by chapter number or title, volume sorting, filter read/unread/bookmarked",
+    "keyboard_shortcuts": "Arrow Right / J (Next Chapter), Arrow Left / K (Prev Chapter), B (Bookmark), S (Settings), T (Table of Contents), F (Toggle Full Width), ? (Shortcut Menu Modal)"
+  },
+  "image_urls": {
+    "book_cover": "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85",
+    "hero_landscape": "https://images.pexels.com/photos/15328418/pexels-photo-15328418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "jade_relic": "https://images.pexels.com/photos/35451978/pexels-photo-35451978.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "ancient_scroll": "https://images.pexels.com/photos/14167173/pexels-photo-14167173.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "dark_texture": "https://images.pexels.com/photos/18541879/pexels-photo-18541879.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  "instructions_to_main_agent": [
+    "1. Ensure all interactive components have `data-testid` attributes (e.g. `data-testid='continue-reading-btn'`, `data-testid='chapter-search-input'`, `data-testid='theme-selector-dark'`, `data-testid='reader-font-size-increase'`, `data-testid='bookmark-toggle-btn'`).",
+    "2. Implement LocalStorage persistence for: lastReadChapter, readingProgress (object mapping chapterId -> scrollPosition percentage & completed status), bookmarks (array of chapter details and optional notes), readerSettings (theme, fontFamily, fontSize, lineHeight, containerWidth, autoScrollSpeed).",
+    "3. Provide rich sample chapter data (at least 20-30 fully fleshed out chapters of Reverend Insanity with realistic cultivation content and volume groupings) or dynamic EPUB/JSON loader if local EPUB file is present.",
+    "4. Ensure non-transparent backgrounds on all dropdowns, modals, and sticky headers to prevent content bleed-through.",
+    "5. Make sure the mobile UI includes a sticky bottom reader bar with easy touch controls for chapter navigation, settings, and drawer toggles.",
+    "6. Include a Keyboard Shortcuts cheatsheet modal triggered by '?' or a header shortcut icon.",
+    "7. Implement smooth scroll restoration when reopening a chapter so the reader resumes exactly where they left off.",
+    "8. Use Sonner toasts for bookmark actions, settings resets, and progress notifications."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": {
+    "design_purity": "Avoid generic centered layouts, simplistic gradients, and uniform styling. Create depth through layered design elements with z-index hierarchy and glass-morphism effects (12-24px blur).",
+    "transitions": "You MUST NOT apply universal transition (e.g. `transition: all`). This breaks transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "layout_alignment": "You MUST NOT center align the app container, i.e. do not add `.App { text-align: center; }` in CSS.",
+    "button_styles": "Always use modern button styles like pill-shaped or sharp Xianxia bordered buttons with interaction animations & color relevant to the app style.",
+    "no_ai_emojis": "NEVER use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 for UI icons. Use Lucide icons or custom SVG symbols.",
+    "spacing": "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "toasts": "Use `sonner` for toasts located at `/app/src/components/ui/sonner.tsx` or installed sonner package."
+  }
+}
