@@ -12,6 +12,8 @@ const THEMES = [
   { id: "sepia", name: "Ancient Scroll", swatch: "#FBF0D9", ring: "#B45309" },
   { id: "light", name: "Imperial Jade", swatch: "#FAFAFA", ring: "#059669" },
   { id: "black", name: "Void Realm", swatch: "#000000", ring: "#06B6D4" },
+  { id: "whitepaper", name: "White Paper", swatch: "#FBFAF6", ring: "#7A4B1B" },
+  { id: "darkpaper", name: "Dark Paper", swatch: "#141312", ring: "#C9A45E" },
 ];
 
 const FONTS = [

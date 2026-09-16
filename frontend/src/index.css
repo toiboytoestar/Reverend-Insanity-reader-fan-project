@@ -195,6 +195,24 @@
     --reader-accent: #8B78F0;
     --reader-highlight: #111827;
 }
+.reader-theme-whitepaper {
+    --reader-bg: #FBFAF6;
+    --reader-card: #FFFFFF;
+    --reader-text: #17110C;
+    --reader-muted: #6B5B4A;
+    --reader-border: #E5DFCE;
+    --reader-accent: #7A4B1B;
+    --reader-highlight: #F1E8D2;
+}
+.reader-theme-darkpaper {
+    --reader-bg: #141312;
+    --reader-card: #1B1917;
+    --reader-text: #EFE9DB;
+    --reader-muted: #9C9484;
+    --reader-border: #2A2724;
+    --reader-accent: #C9A45E;
+    --reader-highlight: #2A241C;
+}
 
 .reader-pane {
     background: var(--reader-bg);

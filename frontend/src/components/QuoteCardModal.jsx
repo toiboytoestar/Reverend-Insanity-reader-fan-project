@@ -7,18 +7,50 @@ import { toast } from "sonner";
 
 /* ---------- Themes ---------- */
 const THEMES = [
-  { id: "dark",      label: "Dark" },
-  { id: "parchment", label: "Parchment" },
-  { id: "arc",       label: "Arc Tint" },
-  { id: "inkwash",   label: "Ink Wash" },
-  { id: "bloodmoon", label: "Blood Moon" },
-  { id: "jade",      label: "Jade" },
-  { id: "cinnabar",  label: "Cinnabar" },
-  { id: "void",      label: "Void" },
+  { id: "dark",       label: "Dark" },
+  { id: "parchment",  label: "Parchment" },
+  { id: "arc",        label: "Arc Tint" },
+  { id: "whitepaper", label: "White Paper" },
+  { id: "darkpaper",  label: "Dark Paper" },
+  { id: "inkwash",    label: "Ink Wash" },
+  { id: "bloodmoon",  label: "Blood Moon" },
+  { id: "jade",       label: "Jade" },
+  { id: "cinnabar",   label: "Cinnabar" },
+  { id: "void",       label: "Void" },
 ];
 
 function themePalette(id, accent) {
   switch (id) {
+    case "whitepaper":
+      return {
+        bg: "#FBFAF6",
+        bgLayer: `radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.06) 100%), linear-gradient(180deg, #FCFBF7 0%, #F1EFE7 100%)`,
+        frame: "rgba(0,0,0,0.18)",
+        frameInner: "rgba(0,0,0,0.06)",
+        frameShadowInset: "rgba(0,0,0,0.03)",
+        text: "#111111",
+        textHead: "#111111",
+        eyebrow: accent,
+        divider: "rgba(0,0,0,0.20)",
+        muted: "rgba(0,0,0,0.45)",
+        gold: "rgba(0,0,0,0.55)",
+        quoteMark: accent,
+      };
+    case "darkpaper":
+      return {
+        bg: "#141312",
+        bgLayer: `radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%), linear-gradient(180deg, #1A1918 0%, #0B0A09 100%)`,
+        frame: "rgba(255,255,255,0.22)",
+        frameInner: "rgba(255,255,255,0.08)",
+        frameShadowInset: "rgba(0,0,0,0.35)",
+        text: "#EFE9DB",
+        textHead: "#F5F0E3",
+        eyebrow: "#EFE9DB",
+        divider: "rgba(255,255,255,0.28)",
+        muted: "rgba(255,255,255,0.45)",
+        gold: "rgba(255,255,255,0.55)",
+        quoteMark: "#EFE9DB",
+      };
     case "parchment":
       return {
         bg: "#F3E9CE",
