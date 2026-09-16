@@ -9,11 +9,16 @@ import {
   getBookmarks,
   getFurthestIndex,
   getHistory,
+  getCompletedCount,
+  getLiveStreak,
+  getDaily,
+  getGoal,
 } from "@/lib/storage";
 import { TID } from "@/lib/testIds";
 import { Button } from "@/components/ui/button";
 import { Heart, Info, ScrollText, Download, ArrowRight, BookOpen } from "lucide-react";
 import TiltCover from "@/components/TiltCover";
+import { RankCard, StreakCard } from "@/components/EngagementCards";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
@@ -45,14 +50,21 @@ export default function LandingPage() {
   const [lastReadId, setLastReadId] = useState(null);
   const [furthest, setFurthest] = useState(0);
   const [recent, setRecent] = useState([]);
+  const [streak, setStreak] = useState({ current: 0, longest: 0, lastDay: null });
+  const [todayCount, setTodayCount] = useState(0);
+  const [goal, setGoalState] = useState(3);
 
   useEffect(() => {
     const p = getProgress();
-    setReadCount(Object.values(p).filter((v) => v.completed).length);
+    setReadCount(getCompletedCount());
     setBookmarkCount(getBookmarks().length);
     setLastReadId(getLastRead());
     setFurthest(getFurthestIndex());
     setRecent(getHistory().slice(0, 5));
+    setStreak(getLiveStreak());
+    const today = new Date().toISOString().slice(0, 10);
+    setTodayCount(getDaily()[today] || 0);
+    setGoalState(getGoal().chaptersPerDay);
   }, []);
 
   const continueTarget = useMemo(
@@ -136,6 +148,11 @@ export default function LandingPage() {
       {/* Your progress + Recent history */}
       {novel && furthest > 0 && (
         <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-14">
+          {/* Cultivation rank + Streak */}
+          <div className="grid md:grid-cols-2 gap-4 mb-4">
+            <RankCard chaptersCompleted={readCount} />
+            <StreakCard streak={streak} todayCount={todayCount} goal={goal} />
+          </div>
           <div className="grid lg:grid-cols-[1.2fr_1fr] gap-4">
             <div
               data-testid={TID.overallProgressCard}

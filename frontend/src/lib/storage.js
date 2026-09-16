@@ -5,9 +5,20 @@ const K = {
   LAST: "ri:last",         // last read chapterId
   BOOKMARKS: "ri:bookmarks", // [{ chapterId, index, title, note, createdAt }]
   HISTORY: "ri:history",   // [{ chapterId, index, chapterNumber, title, visitedAt }] most recent first
+  STREAK: "ri:streak",     // { current, longest, lastDay }
+  DAILY: "ri:daily",       // { [YYYY-MM-DD]: chaptersCompleted }
+  GOAL: "ri:goal",         // { chaptersPerDay }
 };
 
 const HISTORY_LIMIT = 50;
+const DEFAULT_GOAL = { chaptersPerDay: 3 };
+
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const daysBetween = (a, b) => {
+  const d1 = new Date(a).setHours(0, 0, 0, 0);
+  const d2 = new Date(b).setHours(0, 0, 0, 0);
+  return Math.round((d2 - d1) / 86400000);
+};
 
 const safeParse = (raw, fallback) => {
   try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
@@ -81,4 +92,61 @@ export const getFurthestIndex = () => {
     }
   }
   return max;
+};
+
+// -------- Streak, daily goal, cultivation feedback --------
+export const getStreak = () => safeParse(localStorage.getItem(K.STREAK), { current: 0, longest: 0, lastDay: null });
+export const getDaily = () => safeParse(localStorage.getItem(K.DAILY), {});
+export const getGoal = () => ({ ...DEFAULT_GOAL, ...safeParse(localStorage.getItem(K.GOAL), {}) });
+export const setGoal = (g) => localStorage.setItem(K.GOAL, JSON.stringify({ ...DEFAULT_GOAL, ...g }));
+
+export const getCompletedCount = () =>
+  Object.values(getProgress()).filter((v) => v.completed).length;
+
+// Called once per chapter when scroll hits ~100%. Idempotent within the same day
+// for the same chapter; updates streak + daily counter.
+export const recordChapterComplete = (chapterId) => {
+  const progress = getProgress();
+  const prev = progress[chapterId];
+  const alreadyCompleted = !!prev?.completed;
+
+  // Mark completed
+  progress[chapterId] = { pct: 1, completed: true, updatedAt: Date.now() };
+  localStorage.setItem(K.PROGRESS, JSON.stringify(progress));
+
+  if (alreadyCompleted) return { wasNew: false };
+
+  const today = todayKey();
+  const daily = getDaily();
+  daily[today] = (daily[today] || 0) + 1;
+  localStorage.setItem(K.DAILY, JSON.stringify(daily));
+
+  // Update streak
+  const streak = getStreak();
+  if (streak.lastDay === today) {
+    // same day, streak unchanged
+  } else {
+    const gap = streak.lastDay ? daysBetween(streak.lastDay, today) : null;
+    if (gap === 1) streak.current = (streak.current || 0) + 1;
+    else streak.current = 1;
+    streak.lastDay = today;
+    streak.longest = Math.max(streak.longest || 0, streak.current);
+    localStorage.setItem(K.STREAK, JSON.stringify(streak));
+  }
+
+  return {
+    wasNew: true,
+    todayCount: daily[today],
+    goal: getGoal().chaptersPerDay,
+    streak: getStreak(),
+  };
+};
+
+// Recompute streak lazily on read (handles missed days)
+export const getLiveStreak = () => {
+  const s = getStreak();
+  if (!s.lastDay) return s;
+  const gap = daysBetween(s.lastDay, todayKey());
+  if (gap > 1) return { ...s, current: 0 };
+  return s;
 };

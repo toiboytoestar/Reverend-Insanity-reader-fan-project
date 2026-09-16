@@ -11,7 +11,9 @@ import {
   toggleBookmark,
   getProgress,
   pushHistory,
+  recordChapterComplete,
 } from "@/lib/storage";
+import { getCultivationRank } from "@/lib/cultivation";
 import { useReaderSettings, widthMap, fontFamilyMap } from "@/context/ReaderSettings";
 import ReaderSettingsPanel from "@/components/ReaderSettingsPanel";
 import TocDrawer from "@/components/TocDrawer";
@@ -92,11 +94,12 @@ export default function ReaderPage() {
     }
   }, [chapter?.id]);
 
-  // Track scroll progress + save
+  // Track scroll progress + save + celebrate first completion
   useEffect(() => {
     if (!chapter) return;
     let raf = null;
     let saveTimer = null;
+    let celebrated = false;
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
@@ -109,6 +112,37 @@ export default function ReaderPage() {
           saveTimer = setTimeout(() => {
             setProgress(chapter.id, pct, pct >= 0.95);
           }, 400);
+          // First-time completion celebration
+          if (pct >= 0.95 && !celebrated) {
+            celebrated = true;
+            const result = recordChapterComplete(chapter.id);
+            if (result.wasNew) {
+              const before = result.todayCount - 1;
+              const hitGoal = before < result.goal && result.todayCount >= result.goal;
+              const streakUp = result.streak.current > 1 && result.streak.lastDay === new Date().toISOString().slice(0, 10);
+              // Cultivation rank up?
+              const totalCompleted = Object.values(getProgress()).filter((v) => v.completed).length;
+              const rankBefore = getCultivationRank(totalCompleted - 1);
+              const rankAfter = getCultivationRank(totalCompleted);
+              if (rankAfter.rank > rankBefore.rank) {
+                toast(`Ascended to ${rankAfter.title}`, {
+                  description: `${rankAfter.label} · ${totalCompleted.toLocaleString()} chapters cultivated`,
+                });
+              } else if (hitGoal) {
+                toast(`Daily goal complete — ${result.todayCount}/${result.goal}`, {
+                  description: streakUp ? `${result.streak.current}-day streak alive` : "Rest well, cultivator.",
+                });
+              } else if (streakUp) {
+                toast(`${result.streak.current}-day streak`, {
+                  description: `${result.todayCount}/${result.goal} chapters today`,
+                });
+              } else {
+                toast("Chapter complete", {
+                  description: `${result.todayCount}/${result.goal} chapters today`,
+                });
+              }
+            }
+          }
         }
         raf = null;
       });
