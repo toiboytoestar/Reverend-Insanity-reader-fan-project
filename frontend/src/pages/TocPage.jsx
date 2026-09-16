@@ -27,6 +27,7 @@ import {
 import TiltCover from "@/components/TiltCover";
 import BookCover from "@/components/BookCover";
 import { ARCS, getArc } from "@/lib/volumes";
+import { toRoman } from "@/lib/roman";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
@@ -257,50 +258,85 @@ export default function TocPage() {
             ) : (
               <>
                 <div className="space-y-1.5">
-                  {shown.map((c) => {
-                    const p = progress[c.id];
-                    const read = !!p?.completed;
-                    const inProgress = !read && !!p?.pct;
-                    const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
-                    const currentArc = getArc(c.chapter_number, c.index);
-                    return (
-                      <Link
-                        key={c.id}
-                        to={`/read/${c.id}`}
-                        data-testid={TID.chapterListItem(c.id)}
-                        className="group flex items-center gap-4 rounded-md border border-white/5 bg-white/[0.02] hover:bg-orange-500/[0.04] hover:border-orange-400/25 p-4 sm:px-5 transition-colors"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="font-label text-[10px] text-orange-300/90 tracking-widest">
-                            CHAPTER {c.chapter_number ?? c.index}
-                          </div>
-                          <div className="mt-1 font-body-serif text-lg sm:text-xl text-slate-100 truncate">
-                            {c.title.replace(/^chapter\s+\d+\s*[-–—:]\s*/i, "")}
-                          </div>
-                        </div>
-                        <div className="hidden sm:flex items-center gap-3 text-right">
-                          {bookmarked && <Bookmark className="w-3.5 h-3.5 text-orange-300" />}
-                          {read ? (
-                            <Check className="w-4 h-4 text-orange-300" />
-                          ) : inProgress ? (
-                            <CircleDot className="w-4 h-4 text-orange-300/70" />
-                          ) : (
-                            <Circle className="w-4 h-4 text-slate-700" />
-                          )}
+                  {(() => {
+                    const rows = [];
+                    let prevArcId = null;
+                    shown.forEach((c) => {
+                      const currentArc = getArc(c.chapter_number, c.index);
+                      if (currentArc.id !== prevArcId) {
+                        rows.push(
                           <div
-                            className="font-label text-[10px] min-w-[130px] flex items-center gap-1.5 justify-end"
-                            style={{ color: `${currentArc.hue}CC` }}
+                            key={`arc-${currentArc.id}-${c.id}`}
+                            data-testid={`arc-banner-${currentArc.id}`}
+                            className="relative flex items-center gap-4 rounded-md overflow-hidden px-5 py-4 mt-4 first:mt-0 border"
+                            style={{
+                              borderColor: `${currentArc.hue}33`,
+                              background: `linear-gradient(90deg, ${currentArc.hue}12 0%, ${currentArc.hue}04 40%, transparent 100%)`,
+                            }}
                           >
                             <span
-                              className="inline-block w-1.5 h-1.5 rounded-full"
-                              style={{ background: currentArc.hue }}
+                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              style={{ background: currentArc.hue, boxShadow: `0 0 12px ${currentArc.hue}88` }}
                             />
-                            {currentArc.short.toUpperCase()}
+                            <div className="flex-1 min-w-0">
+                              <div
+                                className="font-label text-[10px] tracking-widest"
+                                style={{ color: currentArc.hue }}
+                              >
+                                ARC {toRoman(currentArc.id)} · REGIONAL SAGA
+                              </div>
+                              <div className="mt-0.5 font-display text-lg sm:text-xl text-slate-100 truncate">
+                                {currentArc.name}
+                              </div>
+                            </div>
+                            <div className="hidden sm:block text-right shrink-0">
+                              <div className="font-body-mono text-[11px] tabular text-slate-300">
+                                Chapters {currentArc.start.toLocaleString()}
+                                <span className="text-slate-600 mx-1">–</span>
+                                {currentArc.end.toLocaleString()}
+                              </div>
+                              <div className="font-label text-[9px] text-slate-500 mt-0.5">
+                                {(currentArc.end - currentArc.start + 1).toLocaleString()} chapters
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
+                        );
+                        prevArcId = currentArc.id;
+                      }
+                      const p = progress[c.id];
+                      const read = !!p?.completed;
+                      const inProgress = !read && !!p?.pct;
+                      const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
+                      rows.push(
+                        <Link
+                          key={c.id}
+                          to={`/read/${c.id}`}
+                          data-testid={TID.chapterListItem(c.id)}
+                          className="group flex items-center gap-4 rounded-md border border-white/5 bg-white/[0.02] hover:bg-orange-500/[0.04] hover:border-orange-400/25 p-4 sm:px-5 transition-colors"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-label text-[10px] text-orange-300/90 tracking-widest">
+                              CHAPTER {c.chapter_number ?? c.index}
+                            </div>
+                            <div className="mt-1 font-body-serif text-lg sm:text-xl text-slate-100 truncate">
+                              {c.title.replace(/^chapter\s+\d+\s*[-–—:]\s*/i, "")}
+                            </div>
+                          </div>
+                          <div className="hidden sm:flex items-center gap-3 text-right">
+                            {bookmarked && <Bookmark className="w-3.5 h-3.5 text-orange-300" />}
+                            {read ? (
+                              <Check className="w-4 h-4 text-orange-300" />
+                            ) : inProgress ? (
+                              <CircleDot className="w-4 h-4 text-orange-300/70" />
+                            ) : (
+                              <Circle className="w-4 h-4 text-slate-700" />
+                            )}
+                          </div>
+                        </Link>
+                      );
+                    });
+                    return rows;
+                  })()}
                 </div>
                 {visibleCount < filtered.length && (
                   <div className="mt-8 text-center">

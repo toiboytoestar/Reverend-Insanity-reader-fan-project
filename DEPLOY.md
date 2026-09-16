@@ -50,3 +50,34 @@ node scripts/prepare-data.js    # copies backend/data -> public/data
 - Total deployed bundle: ~34 MB of chapter JSON + ~500 KB of JS/CSS.
 - Every chapter is served with `Cache-Control: public, max-age=31536000, immutable`, so repeat reads are instant and free of bandwidth on Vercel's edge network.
 - Reader state (progress, bookmarks, streak, rank) lives in the browser's `localStorage` — nothing is sent to any server.
+
+## Pointing a custom domain at the Vercel deploy
+
+Vercel handles TLS certificates and HTTP/2 automatically once DNS resolves. A few quick paths:
+
+### If you already own a domain (recommended)
+
+1. In Vercel: open the project → **Settings → Domains → Add**.
+2. Enter your domain (e.g. `reverendinsanity.app` or `gu.reader.city`) and Vercel will show the DNS records you need to create.
+3. In your domain registrar's DNS dashboard, add whichever Vercel asks for:
+   - **Apex domain** (`example.com`): create an `A` record pointing to `76.76.21.21`.
+   - **Subdomain** (`read.example.com` or `www.example.com`): create a `CNAME` pointing to `cname.vercel-dns.com`.
+4. Wait a few minutes for DNS to propagate. Vercel auto-issues a Let's Encrypt SSL cert.
+
+### If you don't own a domain yet
+
+Great reader-friendly TLDs and where to buy:
+- `.app`, `.reader`, `.wtf`, `.ink`, `.press`, `.saga` — [Porkbun](https://porkbun.com), [Cloudflare Registrar](https://www.cloudflare.com/products/registrar/) (registrar price + no markup), [Namecheap](https://www.namecheap.com).
+- Free options while testing: keep the auto-assigned `your-project.vercel.app`, or move the site to Cloudflare Pages for a free `.pages.dev`.
+
+Note: `.reader` is a **live** TLD but sponsored/restricted — you'll usually need to route through a specialty registrar like [101domain](https://www.101domain.com). If it's unavailable, alternatives that read similarly for a novel-reader brand:
+- `reverendinsanity.app`
+- `reverend-insanity.press`
+- `gureader.ink`
+- `fangyuan.saga`
+- `gu.reader.dev`
+
+### After DNS is live
+
+Vercel automatically makes the domain the primary one. Update any bookmarks and share links to the new domain. Your GitHub OAuth / analytics providers (if you add them later) should also be pointed at the new origin.
+
