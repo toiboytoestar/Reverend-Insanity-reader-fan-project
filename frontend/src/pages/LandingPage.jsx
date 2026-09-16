@@ -13,6 +13,7 @@ import {
 import { TID } from "@/lib/testIds";
 import { Button } from "@/components/ui/button";
 import { Heart, Info, ScrollText, Download, ArrowRight, BookOpen } from "lucide-react";
+import TiltCover from "@/components/TiltCover";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
@@ -80,10 +81,10 @@ export default function LandingPage() {
             className="relative mx-auto lg:mx-0"
           >
             <div className="absolute -inset-8 orange-halo opacity-70 blur-2xl" />
-            <div className="relative aspect-[3/4] w-[260px] sm:w-[320px] rounded-md overflow-hidden shadow-[0_40px_80px_-25px_rgba(0,0,0,0.9)] ring-1 ring-white/10">
-              <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-            </div>
+            <TiltCover className="relative aspect-[3/4] w-[260px] sm:w-[320px] rounded-md overflow-hidden shadow-[0_40px_80px_-25px_rgba(0,0,0,0.9)] ring-1 ring-white/10 cursor-pointer">
+              <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+            </TiltCover>
           </motion.div>
 
           <motion.div

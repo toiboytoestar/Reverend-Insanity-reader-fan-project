@@ -3,11 +3,13 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import LandingPage from "@/pages/LandingPage";
 import TocPage from "@/pages/TocPage";
 import ReaderPage from "@/pages/ReaderPage";
 import BookmarksPage from "@/pages/BookmarksPage";
 import HistoryPage from "@/pages/HistoryPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 import { ReaderSettingsProvider } from "@/context/ReaderSettings";
 
 function App() {
@@ -22,7 +24,9 @@ function App() {
             <Route path="/read/:chapterId" element={<ReaderPage />} />
             <Route path="/bookmarks" element={<BookmarksPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          <SiteFooter />
           <Toaster
             theme="dark"
             position="bottom-right"

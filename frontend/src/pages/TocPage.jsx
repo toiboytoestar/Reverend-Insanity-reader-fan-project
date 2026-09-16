@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import TiltCover from "@/components/TiltCover";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
@@ -115,10 +116,10 @@ export default function TocPage() {
           <aside className="lg:sticky lg:top-24 self-start">
             <div className="relative">
               <div className="absolute -inset-6 orange-halo opacity-40 blur-2xl pointer-events-none" />
-              <div className="relative aspect-[3/4] rounded-md overflow-hidden ring-1 ring-white/10 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.8)] max-w-[280px] mx-auto lg:mx-0">
-                <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              </div>
+              <TiltCover className="relative aspect-[3/4] rounded-md overflow-hidden ring-1 ring-white/10 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.8)] max-w-[280px] mx-auto lg:mx-0 cursor-pointer">
+                <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+              </TiltCover>
             </div>
 
             <h1 className="mt-6 font-display text-2xl sm:text-3xl text-slate-100">
