@@ -1,0 +1,30 @@
+{
+  "summary": "First-finish smoke test for Reverend Insanity reader. Backend (5 endpoints) and frontend core flows (landing, TOC, reader, keyboard shortcuts, settings, bookmarks with LocalStorage) all pass.",
+  "tested_scope": ["backend", "frontend", "integration"],
+  "passed": [
+    "GET /api/novel -> 200, title=Reverend Insanity, author=Gu Zhen Ren, total_chapters=2335, total_words=4870621",
+    "GET /api/chapters?limit=10&offset=0 -> 200, total=2335, items[] returns id/index/title/word_count (uses key 'items' not 'chapters')",
+    "GET /api/chapters?q=100 -> 200, filtered total=14",
+    "GET /api/chapters/ch0002 -> 200, title='Chapter 1', paragraphs=91, prev=ch0001, next=ch0003, total=2335",
+    "GET /api/chapters/2 (numeric alias) -> 200, resolves to ch0002",
+    "GET /api/chapters/ch9999 -> 404",
+    "Landing page loads with 2,335 stats and navigation buttons (browse-toc-btn)",
+    "TOC page loads with chapter-search-input and filter buttons; navigable from landing",
+    "Reader /read/ch0002 loads: title 'Chapter 1', 91 paragraphs, progress bar present, bookmark/settings buttons present",
+    "Keyboard 'b' toggles bookmark (verified: bookmark entry appears on /bookmarks page with note textarea)",
+    "Keyboard '?' opens shortcuts modal (Keyboard text found)",
+    "Keyboard 'j' navigates from ch0002 to ch0003",
+    "Settings panel opens; theme-selector-sepia, font-size-increase, width-selector-wide all clickable",
+    "Bookmarks page renders bookmarked Chapter 1 with note textarea and remove button (LocalStorage persistence verified across page navigation)"
+  ],
+  "failed": [],
+  "action_items": [],
+  "notes": [
+    "Backend chapters endpoint returns 'items' key (not 'chapters'); frontend already handles this correctly.",
+    "TOC uses data-testid 'chapter-item-<id>' (chapterListItem) rather than 'chapter-card-<id>'; both are defined in testIds.js — not a bug.",
+    "Some page text uses CSS text-transform: uppercase, so raw inner_text substring checks for mixed-case strings may show False despite text being present visually (verified by screenshot)."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}
