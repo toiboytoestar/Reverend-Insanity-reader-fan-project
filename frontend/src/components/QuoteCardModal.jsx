@@ -5,15 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
+/* ---------- Themes ---------- */
 const THEMES = [
-  { id: "dark",   label: "Dark"   },
-  { id: "light",  label: "Parchment" },
-  { id: "arc",    label: "Arc Tint" },
+  { id: "dark",      label: "Dark" },
+  { id: "parchment", label: "Parchment" },
+  { id: "arc",       label: "Arc Tint" },
+  { id: "inkwash",   label: "Ink Wash" },
+  { id: "bloodmoon", label: "Blood Moon" },
+  { id: "jade",      label: "Jade" },
+  { id: "cinnabar",  label: "Cinnabar" },
+  { id: "void",      label: "Void" },
 ];
 
-function themePalette(themeId, accent) {
-  switch (themeId) {
-    case "light":
+function themePalette(id, accent) {
+  switch (id) {
+    case "parchment":
       return {
         bg: "#F3E9CE",
         bgLayer: `radial-gradient(60% 45% at 72% 32%, ${accent}22 0%, transparent 60%), radial-gradient(45% 40% at 18% 82%, rgba(140,70,40,0.10) 0%, transparent 60%), linear-gradient(180deg, #F3E9CE 0%, #E4D5AE 100%)`,
@@ -43,6 +49,81 @@ function themePalette(themeId, accent) {
         gold: "rgba(255,255,255,0.7)",
         quoteMark: "#FFFFFF",
       };
+    case "inkwash":
+      return {
+        bg: "#F7F5F0",
+        bgLayer: `radial-gradient(50% 40% at 78% 22%, rgba(0,0,0,0.10) 0%, transparent 60%), radial-gradient(45% 40% at 15% 85%, rgba(0,0,0,0.08) 0%, transparent 60%), linear-gradient(180deg, #F9F7F2 0%, #EFEBE1 100%)`,
+        frame: "rgba(0,0,0,0.45)",
+        frameInner: "rgba(0,0,0,0.15)",
+        frameShadowInset: "rgba(0,0,0,0.05)",
+        text: "#101010",
+        textHead: "#101010",
+        eyebrow: "#101010",
+        divider: "rgba(0,0,0,0.5)",
+        muted: "rgba(0,0,0,0.5)",
+        gold: "rgba(0,0,0,0.75)",
+        quoteMark: "#101010",
+      };
+    case "bloodmoon":
+      return {
+        bg: "#1A0508",
+        bgLayer: `radial-gradient(60% 55% at 72% 22%, rgba(230,70,60,0.35) 0%, transparent 60%), radial-gradient(80% 60% at 50% 100%, rgba(10,0,4,0.85) 0%, transparent 60%), linear-gradient(180deg, #2A0A10 0%, #0B0204 100%)`,
+        frame: "rgba(201,164,94,0.55)",
+        frameInner: "rgba(201,164,94,0.25)",
+        frameShadowInset: "rgba(0,0,0,0.5)",
+        text: "#F5DEA6",
+        textHead: "#F7D488",
+        eyebrow: "#F7D488",
+        divider: "rgba(201,164,94,0.45)",
+        muted: "rgba(245,208,138,0.55)",
+        gold: "rgba(201,164,94,0.9)",
+        quoteMark: "#F7D488",
+      };
+    case "jade":
+      return {
+        bg: "#062821",
+        bgLayer: `radial-gradient(70% 60% at 30% 20%, rgba(90,230,180,0.18) 0%, transparent 60%), radial-gradient(60% 50% at 80% 100%, rgba(6,20,16,0.9) 0%, transparent 60%), linear-gradient(180deg, #0B3B30 0%, #041711 100%)`,
+        frame: "rgba(201,164,94,0.55)",
+        frameInner: "rgba(201,164,94,0.28)",
+        frameShadowInset: "rgba(0,0,0,0.45)",
+        text: "#EDE1BE",
+        textHead: "#F5E8C6",
+        eyebrow: "#8FE0B8",
+        divider: "rgba(201,164,94,0.45)",
+        muted: "rgba(237,225,190,0.5)",
+        gold: "rgba(201,164,94,0.85)",
+        quoteMark: "#8FE0B8",
+      };
+    case "cinnabar":
+      return {
+        bg: "#8A1E1E",
+        bgLayer: `radial-gradient(60% 55% at 70% 25%, rgba(255,240,220,0.18) 0%, transparent 60%), radial-gradient(80% 60% at 50% 100%, rgba(40,0,0,0.6) 0%, transparent 60%), linear-gradient(160deg, #9B2323 0%, #430A0E 100%)`,
+        frame: "rgba(255,240,210,0.6)",
+        frameInner: "rgba(255,240,210,0.28)",
+        frameShadowInset: "rgba(80,0,0,0.4)",
+        text: "#FFF3D8",
+        textHead: "#FFF8E6",
+        eyebrow: "#FFE8B0",
+        divider: "rgba(255,240,210,0.5)",
+        muted: "rgba(255,243,216,0.6)",
+        gold: "rgba(255,220,150,0.85)",
+        quoteMark: "#FFE8B0",
+      };
+    case "void":
+      return {
+        bg: "#000000",
+        bgLayer: `radial-gradient(60% 50% at 72% 25%, rgba(140,120,240,0.18) 0%, transparent 60%), radial-gradient(70% 60% at 25% 85%, rgba(60,80,200,0.12) 0%, transparent 60%), radial-gradient(30% 30% at 15% 20%, rgba(255,255,255,0.05) 0%, transparent 60%), #000`,
+        frame: "rgba(255,255,255,0.35)",
+        frameInner: "rgba(140,120,240,0.22)",
+        frameShadowInset: "rgba(0,0,0,0.6)",
+        text: "#E7DFF8",
+        textHead: "#FFFFFF",
+        eyebrow: "#B8A9FF",
+        divider: "rgba(255,255,255,0.28)",
+        muted: "rgba(255,255,255,0.45)",
+        gold: "rgba(184,169,255,0.75)",
+        quoteMark: "#B8A9FF",
+      };
     case "dark":
     default:
       return {
@@ -62,16 +143,79 @@ function themePalette(themeId, accent) {
   }
 }
 
+/* ---------- Text styles ---------- */
+const TEXT_STYLES = [
+  { id: "classic",    label: "Classic"    },
+  { id: "modern",     label: "Modern"     },
+  { id: "manuscript", label: "Manuscript" },
+  { id: "poetic",     label: "Poetic"     },
+];
+
+function textPreset(id) {
+  switch (id) {
+    case "modern":
+      return {
+        family: "'Plus Jakarta Sans', system-ui, sans-serif",
+        italic: false,
+        weight: 500,
+        letterSpacing: 0,
+        transform: "none",
+        lineHeight: 1.4,
+        showQuoteMarks: true,
+        quoteMarkScale: 1.15,
+        sizeMul: 0.95,
+      };
+    case "manuscript":
+      return {
+        family: "'Cinzel', 'EB Garamond', serif",
+        italic: false,
+        weight: 500,
+        letterSpacing: 3,
+        transform: "uppercase",
+        lineHeight: 1.55,
+        showQuoteMarks: false,
+        sizeMul: 0.68,
+      };
+    case "poetic":
+      return {
+        family: "'EB Garamond', 'Cormorant Garamond', serif",
+        italic: true,
+        weight: 500,
+        letterSpacing: 0,
+        transform: "none",
+        lineHeight: 1.5,
+        showQuoteMarks: false,
+        sizeMul: 1.12,
+      };
+    case "classic":
+    default:
+      return {
+        family: "'EB Garamond', 'Cormorant Garamond', serif",
+        italic: true,
+        weight: 500,
+        letterSpacing: 0,
+        transform: "none",
+        lineHeight: 1.35,
+        showQuoteMarks: true,
+        quoteMarkScale: 1.4,
+        sizeMul: 1,
+      };
+  }
+}
+
 export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc }) {
   const cardRef = useRef(null);
   const [busy, setBusy] = useState(false);
   const [theme, setTheme] = useState("dark");
+  const [textStyle, setTextStyle] = useState("classic");
 
   const accent = arc?.hue || "#EC8B60";
   const P = themePalette(theme, accent);
+  const S = textPreset(textStyle);
   const trimmed = (quote || "").trim();
   const len = trimmed.length;
-  const quoteFontPx = len > 260 ? 30 : len > 160 ? 38 : len > 80 ? 46 : 54;
+  const baseSize = len > 260 ? 30 : len > 160 ? 38 : len > 80 ? 46 : 54;
+  const quoteFontPx = Math.max(20, Math.round(baseSize * S.sizeMul));
 
   const download = async () => {
     if (!cardRef.current) return;
@@ -85,7 +229,7 @@ export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc
       const a = document.createElement("a");
       a.href = dataUrl;
       const chapNum = chapter?.chapter_number ?? chapter?.index ?? "quote";
-      a.download = `reverend-insanity-ch${chapNum}-${theme}.png`;
+      a.download = `reverend-insanity-ch${chapNum}-${theme}-${textStyle}.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -126,7 +270,7 @@ export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         data-testid="quote-card-modal"
-        className="bg-[#0B0D0E] border-white/10 text-slate-100 max-w-[540px] p-0 overflow-hidden"
+        className="bg-[#0B0D0E] border-white/10 text-slate-100 max-w-[560px] p-0 overflow-hidden"
       >
         <DialogHeader className="p-5 border-b border-white/10">
           <DialogTitle className="font-display text-xl text-slate-100 tracking-wide">
@@ -137,26 +281,50 @@ export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc
           </div>
         </DialogHeader>
 
-        <div className="p-5 flex flex-col items-center gap-4 max-h-[75vh] overflow-y-auto">
+        <div className="p-5 flex flex-col items-center gap-4 max-h-[80vh] overflow-y-auto">
           {/* Theme picker */}
-          <div className="flex items-center gap-1.5 w-full" data-testid="quote-theme-picker">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                data-testid={`quote-theme-${t.id}`}
-                onClick={() => setTheme(t.id)}
-                className={`flex-1 font-label text-[10px] tracking-widest rounded-full px-3 h-8 border transition-colors ${
-                  theme === t.id
-                    ? "border-orange-400/50 text-orange-200 bg-orange-500/10"
-                    : "border-white/10 text-slate-400 hover:text-orange-200 hover:border-orange-400/30"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
+          <div className="w-full">
+            <div className="font-label text-[9px] text-slate-500 mb-2">Theme</div>
+            <div className="flex flex-wrap gap-1.5" data-testid="quote-theme-picker">
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  data-testid={`quote-theme-${t.id}`}
+                  onClick={() => setTheme(t.id)}
+                  className={`font-label text-[10px] tracking-widest rounded-full px-3 h-8 border transition-colors ${
+                    theme === t.id
+                      ? "border-orange-400/50 text-orange-200 bg-orange-500/10"
+                      : "border-white/10 text-slate-400 hover:text-orange-200 hover:border-orange-400/30"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Scaled preview wrapper */}
+          {/* Text-style picker */}
+          <div className="w-full">
+            <div className="font-label text-[9px] text-slate-500 mb-2">Text style</div>
+            <div className="flex flex-wrap gap-1.5" data-testid="quote-textstyle-picker">
+              {TEXT_STYLES.map((t) => (
+                <button
+                  key={t.id}
+                  data-testid={`quote-textstyle-${t.id}`}
+                  onClick={() => setTextStyle(t.id)}
+                  className={`font-label text-[10px] tracking-widest rounded-full px-3 h-8 border transition-colors ${
+                    textStyle === t.id
+                      ? "border-orange-400/50 text-orange-200 bg-orange-500/10"
+                      : "border-white/10 text-slate-400 hover:text-orange-200 hover:border-orange-400/30"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Scaled preview */}
           <div className="relative" style={{ width: 360, height: 450 }}>
             <div
               ref={cardRef}
@@ -175,7 +343,6 @@ export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc
               }}
             >
               <div style={{ position: "absolute", inset: 0, background: P.bgLayer }} />
-              {/* Frame */}
               <div
                 style={{
                   position: "absolute",
@@ -185,7 +352,6 @@ export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc
                   borderRadius: 4,
                 }}
               />
-              {/* Corner ornaments */}
               {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
@@ -229,18 +395,24 @@ export default function QuoteCardModal({ open, onOpenChange, quote, chapter, arc
 
                 <div
                   style={{
-                    fontFamily: "'EB Garamond', 'Cormorant Garamond', serif",
+                    fontFamily: S.family,
                     fontSize: quoteFontPx,
-                    lineHeight: 1.35,
+                    lineHeight: S.lineHeight,
                     color: P.text,
-                    fontWeight: 500,
-                    fontStyle: "italic",
+                    fontWeight: S.weight,
+                    fontStyle: S.italic ? "italic" : "normal",
+                    letterSpacing: S.letterSpacing,
+                    textTransform: S.transform,
                     padding: "20px 0",
                   }}
                 >
-                  <span style={{ color: P.quoteMark, fontSize: quoteFontPx * 1.4, fontFamily: "'EB Garamond', serif", marginRight: 4 }}>&ldquo;</span>
+                  {S.showQuoteMarks && (
+                    <span style={{ color: P.quoteMark, fontSize: quoteFontPx * (S.quoteMarkScale || 1.2), fontFamily: "'EB Garamond', serif", marginRight: 4, fontStyle: "normal" }}>&ldquo;</span>
+                  )}
                   {trimmed}
-                  <span style={{ color: P.quoteMark, fontSize: quoteFontPx * 1.4, fontFamily: "'EB Garamond', serif", marginLeft: 4 }}>&rdquo;</span>
+                  {S.showQuoteMarks && (
+                    <span style={{ color: P.quoteMark, fontSize: quoteFontPx * (S.quoteMarkScale || 1.2), fontFamily: "'EB Garamond', serif", marginLeft: 4, fontStyle: "normal" }}>&rdquo;</span>
+                  )}
                 </div>
 
                 <div style={{ borderTop: `1px solid ${P.divider}`, paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
