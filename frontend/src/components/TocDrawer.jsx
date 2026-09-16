@@ -38,24 +38,24 @@ export default function TocDrawer({ open, onOpenChange, currentId, onNavigate })
       <SheetContent
         data-testid={TID.tocDrawer}
         side="left"
-        className="w-full sm:max-w-md bg-[#0B0D0E] border-emerald-500/20 text-slate-100 flex flex-col"
+        className="w-full sm:max-w-md bg-[#0B0D0E] border-orange-500/20 text-slate-100 flex flex-col"
       >
         <SheetHeader>
-          <SheetTitle className="font-display text-2xl text-emerald-50 tracking-widest">
+          <SheetTitle className="font-display text-2xl text-orange-50 tracking-widest">
             Chapters
           </SheetTitle>
-          <div className="font-label text-[10px] text-emerald-400">
+          <div className="font-label text-[10px] text-orange-400">
             {data?.total?.toLocaleString() || "…"} total
           </div>
         </SheetHeader>
         <div className="relative mt-4">
-          <Search className="w-4 h-4 text-emerald-500/60 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-4 h-4 text-orange-500/60 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <Input
             data-testid={TID.tocDrawerSearch}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Jump to a chapter…"
-            className="pl-10 bg-black/40 border-emerald-500/20 text-emerald-50 placeholder:text-slate-500"
+            className="pl-10 bg-black/40 border-orange-500/20 text-orange-50 placeholder:text-slate-500"
           />
         </div>
         <div className="mt-4 flex-1 overflow-y-auto pr-1 space-y-1">
@@ -75,21 +75,21 @@ export default function TocDrawer({ open, onOpenChange, currentId, onNavigate })
                 }}
                 className={`flex items-center gap-3 p-3 rounded-sm border transition-colors ${
                   isCurrent
-                    ? "border-emerald-500/50 bg-emerald-500/10"
-                    : "border-transparent hover:border-emerald-500/25 hover:bg-emerald-500/5"
+                    ? "border-orange-500/50 bg-orange-500/10"
+                    : "border-transparent hover:border-orange-500/25 hover:bg-orange-500/5"
                 }`}
               >
-                <div className="font-display text-sm text-emerald-500/50 w-10 text-right">
+                <div className="font-display text-sm text-orange-500/50 w-10 text-right">
                   {c.chapter_number ?? c.index}
                 </div>
-                <div className="flex-1 min-w-0 font-body-serif text-sm text-emerald-50 truncate">
+                <div className="flex-1 min-w-0 font-body-serif text-sm text-orange-50 truncate">
                   {c.title}
                 </div>
                 {bookmarked && <Bookmark className="w-3 h-3 text-amber-400" />}
                 {read ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 text-orange-400" />
                 ) : inProgress ? (
-                  <CircleDot className="w-3.5 h-3.5 text-emerald-500/70" />
+                  <CircleDot className="w-3.5 h-3.5 text-orange-500/70" />
                 ) : (
                   <Circle className="w-3.5 h-3.5 text-slate-700" />
                 )}

@@ -2,22 +2,35 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { motion } from "framer-motion";
-import { fetchNovel, fetchChapters } from "@/lib/api";
-import { getLastRead, getProgress, getBookmarks } from "@/lib/storage";
+import { fetchNovel } from "@/lib/api";
+import {
+  getLastRead,
+  getProgress,
+  getBookmarks,
+  getFurthestIndex,
+  getHistory,
+} from "@/lib/storage";
 import { TID } from "@/lib/testIds";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { BookOpen, Bookmark, Feather, Clock, ScrollText, Skull, Sparkles, ArrowRight } from "lucide-react";
+import { Heart, Info, ScrollText, Download, ArrowRight, BookOpen } from "lucide-react";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
 
-function Stat({ label, value, icon: Icon }) {
+function IconRail({ items }) {
   return (
-    <div className="border border-emerald-500/10 bg-black/30 backdrop-blur-sm p-5 rounded-sm hover:border-emerald-500/30 transition-colors">
-      <Icon className="w-4 h-4 text-emerald-400 mb-3" />
-      <div className="font-display text-2xl text-emerald-50">{value}</div>
-      <div className="font-label text-[10px] text-slate-400 mt-1">{label}</div>
+    <div className="fixed right-4 top-1/2 -translate-y-1/2 z-30 hidden md:flex flex-col gap-2">
+      {items.map((it) => (
+        <button
+          key={it.label}
+          onClick={it.onClick}
+          data-testid={it.testid}
+          title={it.label}
+          className="w-10 h-10 rounded-md bg-white/5 border border-white/10 backdrop-blur-sm flex items-center justify-center text-slate-300 hover:text-orange-300 hover:border-orange-400/50 hover:bg-orange-500/10 transition-colors"
+        >
+          <it.icon className="w-4 h-4" />
+        </button>
+      ))}
     </div>
   );
 }
@@ -25,196 +38,195 @@ function Stat({ label, value, icon: Icon }) {
 export default function LandingPage() {
   const navigate = useNavigate();
   const { data: novel } = useSWR("novel", fetchNovel);
-  const { data: chapters } = useSWR(["chapters-preview"], () =>
-    fetchChapters({ limit: 6 })
-  );
 
   const [readCount, setReadCount] = useState(0);
   const [bookmarkCount, setBookmarkCount] = useState(0);
   const [lastReadId, setLastReadId] = useState(null);
+  const [furthest, setFurthest] = useState(0);
+  const [recent, setRecent] = useState([]);
 
   useEffect(() => {
     const p = getProgress();
     setReadCount(Object.values(p).filter((v) => v.completed).length);
     setBookmarkCount(getBookmarks().length);
     setLastReadId(getLastRead());
+    setFurthest(getFurthestIndex());
+    setRecent(getHistory().slice(0, 5));
   }, []);
 
-  const continueTarget = useMemo(() => {
-    if (lastReadId) return `/read/${lastReadId}`;
-    return "/read/ch0002"; // Chapter 1
-  }, [lastReadId]);
+  const continueTarget = useMemo(
+    () => (lastReadId ? `/read/${lastReadId}` : "/read/ch0002"),
+    [lastReadId]
+  );
+
+  const railItems = [
+    { icon: Heart, label: "Bookmarks", testid: "rail-bookmarks", onClick: () => navigate("/bookmarks") },
+    { icon: Info, label: "About", testid: "rail-about", onClick: () => navigate("/toc") },
+    { icon: ScrollText, label: "Chapters", testid: "rail-toc", onClick: () => navigate("/toc") },
+    { icon: BookOpen, label: "History", testid: "rail-history", onClick: () => navigate("/history") },
+  ];
 
   return (
-    <div className="relative">
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 jade-halo opacity-70 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 py-14 sm:py-24 grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-16 items-center">
+    <div className="fog-bg min-h-[calc(100vh-72px)] relative">
+      <IconRail items={railItems} />
+
+      {/* Hero — Beyonder-style: cover left, title/quote/CTAs right */}
+      <section className="relative">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-24 grid lg:grid-cols-[minmax(0,380px)_1fr] gap-10 lg:gap-20 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
+            className="relative mx-auto lg:mx-0"
           >
-            <div className="flex items-center gap-2 mb-6">
-              <span className="font-label text-[10px] text-emerald-400">A Ruthless Gu Cultivation Saga</span>
-              <div className="h-px flex-1 bg-emerald-500/30" />
+            <div className="absolute -inset-8 orange-halo opacity-70 blur-2xl" />
+            <div className="relative aspect-[3/4] w-[260px] sm:w-[320px] rounded-md overflow-hidden shadow-[0_40px_80px_-25px_rgba(0,0,0,0.9)] ring-1 ring-white/10">
+              <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
             </div>
-            <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl leading-[1.02] text-emerald-50 tracking-wide">
-              REVEREND
-              <br />
-              <span className="text-emerald-400">INSANITY</span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+          >
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-orange-300 leading-[1.05]">
+              Reverend Insanity
             </h1>
-            <p className="mt-3 font-label text-xs text-slate-500">
+            <p className="mt-2 font-label text-[10px] text-slate-400">
               蛊真人 · Gu Zhen Ren
             </p>
 
             <div className="mt-8 max-w-2xl">
-              <p className="text-slate-300 leading-relaxed font-body-serif text-lg">
-                {novel?.synopsis}
+              <p className="font-body-serif text-slate-300 text-lg leading-relaxed italic">
+                &ldquo;Humans are clever in tens of thousands of ways, Gu are the
+                true refined essences of Heaven and Earth. The Three Temples are
+                unrighteous, the demon is reborn.&rdquo;
               </p>
-              <p className="mt-4 italic text-emerald-300/80 font-body-serif">
-                {novel?.quote}
+              <p className="mt-4 font-body-serif text-slate-400 text-base leading-relaxed">
+                {novel?.synopsis?.split(".").slice(1, 3).join(".").trim() ||
+                  "Reincarnated after five hundred years, Fang Yuan returns to his youth with the memories of an era."}
               </p>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-2">
-              {(novel?.genre || []).map((g) => (
-                <Badge
-                  key={g}
-                  variant="outline"
-                  className="border-emerald-500/30 text-emerald-200 bg-emerald-500/5 font-label text-[10px]"
-                >
-                  {g}
-                </Badge>
-              ))}
             </div>
 
             <div className="mt-10 flex flex-wrap gap-3">
               <Button
                 data-testid={TID.continueReadingBtn}
                 onClick={() => navigate(continueTarget)}
-                className="bg-emerald-500 hover:bg-emerald-400 text-black font-label tracking-widest px-6 py-6 rounded-sm text-xs"
+                className="rounded-full bg-orange-400 hover:bg-orange-300 text-slate-950 font-medium px-7 h-11 text-sm shadow-[0_10px_30px_-10px_rgba(236,139,96,0.6)]"
               >
-                {lastReadId ? "Continue Reading" : "Begin the Path"}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {lastReadId ? "Continue Reading" : "Read Now"}
               </Button>
               <Button
                 data-testid={TID.browseTocBtn}
                 onClick={() => navigate("/toc")}
-                variant="outline"
-                className="border-emerald-500/40 text-emerald-200 hover:bg-emerald-500/10 font-label tracking-widest px-6 py-6 rounded-sm text-xs"
+                variant="ghost"
+                className="rounded-full bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 font-medium px-7 h-11 text-sm border border-violet-500/30"
               >
-                Table of Contents
-                <ScrollText className="w-4 h-4 ml-2" />
+                <Download className="w-4 h-4 mr-2" />
+                Chapters
               </Button>
             </div>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9 }}
-            className="relative"
-          >
-            <div className="absolute -inset-6 jade-halo opacity-80 blur-2xl" />
-            <div className="relative aspect-[3/4] border border-emerald-500/25 rounded-sm overflow-hidden shadow-[0_30px_80px_-20px_rgba(16,185,129,0.35)]">
-              <img
-                src={HERO_IMG}
-                alt="Reverend Insanity cover"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="font-label text-[10px] text-emerald-300 tracking-widest">Volume I — IX</div>
-                <div className="font-display text-2xl text-emerald-50 mt-1">The Gu Path</div>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="max-w-7xl mx-auto px-5 sm:px-8 pb-10">
-        <div className="divider-jade mb-10" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Stat label="Total Chapters" value={novel?.total_chapters?.toLocaleString() || "—"} icon={ScrollText} />
-          <Stat label="Words in the Saga" value={novel ? `${Math.round(novel.total_words / 1000).toLocaleString()}K` : "—"} icon={Feather} />
-          <Stat label="Chapters Read" value={readCount.toLocaleString()} icon={BookOpen} />
-          <Stat label="Bookmarks" value={bookmarkCount.toLocaleString()} icon={Bookmark} />
-        </div>
-      </section>
-
-      {/* Feature highlights */}
-      <section className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
-        <div className="mb-10 max-w-2xl">
-          <div className="font-label text-[10px] text-emerald-400 mb-3">The Reader</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-emerald-50">
-            Crafted for the long cultivation.
-          </h2>
-          <p className="mt-4 text-slate-400 font-body-serif text-lg leading-relaxed">
-            Four immersive themes, adjustable typography, silent progress tracking,
-            bookmarks with private notes, and keyboard-first navigation — everything a
-            Gu Master needs to walk 2,334 chapters of ruthless ambition.
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {[
-            { icon: Sparkles, title: "Four Reading Themes", body: "Gu Abyss, Ancient Scroll Sepia, Imperial Jade, and Pure Void — each tuned for hours of reading." },
-            { icon: Clock, title: "Silent Progress Saving", body: "Your scroll position, completed chapters, and last read are stored locally — resume anywhere on this device." },
-            { icon: Bookmark, title: "Bookmarks with Notes", body: "Mark pivotal moments and jot down quotes or thoughts. Your private cultivation journal." },
-            { icon: ScrollText, title: "Search & Filter", body: "Search by chapter number or title, filter unread / read / bookmarked at a glance." },
-            { icon: Feather, title: "Typography Control", body: "Serif, sans, or mono. Font size 12–32px. Line-height, letter-spacing, and column width — every knob." },
-            { icon: Skull, title: "Keyboard Shortcuts", body: "→ / J next · ← / K prev · B bookmark · S settings · T toc · ? help. Read fast, read fluid." },
-          ].map((f) => (
+      {/* Your progress + Recent history */}
+      {novel && furthest > 0 && (
+        <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-14">
+          <div className="grid lg:grid-cols-[1.2fr_1fr] gap-4">
             <div
-              key={f.title}
-              className="border border-emerald-500/10 bg-black/30 p-6 rounded-sm hover:border-emerald-500/30 transition-colors"
+              data-testid={TID.overallProgressCard}
+              className="border border-white/10 bg-white/[0.02] backdrop-blur-sm p-6 sm:p-8 rounded-lg relative overflow-hidden"
             >
-              <f.icon className="w-5 h-5 text-emerald-400 mb-4" />
-              <div className="font-display text-lg text-emerald-50">{f.title}</div>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{f.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Preview chapters */}
-      <section className="max-w-7xl mx-auto px-5 sm:px-8 pb-24">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="font-label text-[10px] text-emerald-400 mb-2">Opening Volume</div>
-            <h2 className="font-display text-2xl sm:text-3xl text-emerald-50">Begin the descent</h2>
-          </div>
-          <Link
-            to="/toc"
-            className="font-label text-xs text-emerald-300 hover:text-emerald-200 flex items-center gap-2"
-          >
-            All chapters <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {(chapters?.items || []).map((c) => (
-            <Link
-              key={c.id}
-              to={`/read/${c.id}`}
-              data-testid={TID.chapterCard(c.id)}
-              className="group border border-emerald-500/10 bg-black/30 p-5 rounded-sm hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-colors flex items-start gap-4"
-            >
-              <div className="font-display text-3xl text-emerald-500/40 group-hover:text-emerald-400 transition-colors leading-none w-14">
-                {String(c.index).padStart(2, "0")}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-body-serif text-lg text-emerald-50 truncate">{c.title}</div>
-                <div className="font-label text-[10px] text-slate-500 mt-2">
-                  {c.word_count.toLocaleString()} words · ~{Math.max(1, Math.round(c.word_count / 250))} min
+              <div className="absolute -inset-6 orange-halo opacity-30 pointer-events-none" />
+              <div className="relative">
+                <div className="font-label text-[10px] text-orange-300 mb-3">Your Path</div>
+                <div className="flex items-baseline gap-4 flex-wrap">
+                  <div className="font-display text-4xl sm:text-5xl text-slate-100">
+                    Chapter {furthest.toLocaleString()}
+                    <span className="text-slate-500"> / {novel.total_chapters.toLocaleString()}</span>
+                  </div>
+                  <div
+                    data-testid={TID.overallProgressPct}
+                    className="font-body-mono text-2xl text-orange-300"
+                  >
+                    {((furthest / novel.total_chapters) * 100).toFixed(1)}%
+                  </div>
+                </div>
+                <div className="mt-5 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-400 to-violet-400"
+                    style={{ width: `${(furthest / novel.total_chapters) * 100}%` }}
+                  />
+                </div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {lastReadId && (
+                    <Button
+                      onClick={() => navigate(`/read/${lastReadId}`)}
+                      className="rounded-full bg-orange-400 hover:bg-orange-300 text-slate-950 font-medium text-xs h-9 px-5"
+                    >
+                      Resume <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                    </Button>
+                  )}
+                  <Link
+                    to="/history"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 text-slate-300 hover:text-orange-200 hover:border-orange-400/40 font-medium text-xs h-9 px-5 transition-colors"
+                  >
+                    View history
+                  </Link>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-emerald-500/40 group-hover:text-emerald-300 mt-1 transition-colors" />
-            </Link>
-          ))}
-        </div>
-      </section>
+            </div>
+
+            <div className="border border-white/10 bg-white/[0.02] backdrop-blur-sm p-6 rounded-lg">
+              <div className="font-label text-[10px] text-orange-300 mb-4">Recently Read</div>
+              {recent.length === 0 ? (
+                <div className="text-slate-400 font-body-serif text-sm">
+                  Chapters you open will appear here.
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {recent.map((h) => (
+                    <Link
+                      key={h.chapterId}
+                      to={`/read/${h.chapterId}`}
+                      className="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors"
+                    >
+                      <div className="font-body-mono text-xs text-orange-300/70 w-12 text-right">
+                        {String(h.chapterNumber ?? h.index).padStart(2, "0")}
+                      </div>
+                      <div className="flex-1 min-w-0 font-body-serif text-base text-slate-100 truncate">
+                        {h.title}
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Small stats strip */}
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { l: "Total Chapters", v: novel.total_chapters.toLocaleString() },
+              { l: "Words", v: `${Math.round(novel.total_words / 1000).toLocaleString()}K` },
+              { l: "Read", v: readCount.toLocaleString() },
+              { l: "Bookmarks", v: bookmarkCount.toLocaleString() },
+            ].map((s) => (
+              <div
+                key={s.l}
+                className="border border-white/10 bg-white/[0.02] backdrop-blur-sm p-4 rounded-lg"
+              >
+                <div className="font-body-mono text-2xl text-slate-100">{s.v}</div>
+                <div className="font-label text-[10px] text-slate-500 mt-1">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

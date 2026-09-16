@@ -1,12 +1,39 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useSWR from "swr";
-import { fetchChapters } from "@/lib/api";
-import { getProgress, getBookmarks, isBookmarked } from "@/lib/storage";
+import { fetchChapters, fetchNovel } from "@/lib/api";
+import { getProgress, getBookmarks, getLastRead } from "@/lib/storage";
 import { TID } from "@/lib/testIds";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Check, CircleDot, Search, Circle } from "lucide-react";
+import {
+  Bookmark,
+  Check,
+  CircleDot,
+  Search,
+  Circle,
+  ArrowLeft,
+  BookOpen,
+  Download,
+  ArrowUpDown,
+  ChevronDown,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const HERO_IMG =
+  "https://images.unsplash.com/photo-1755543832265-aa4a6b8c1414?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxhbmNpZW50JTIwZGFyayUyMGZhbnRhc3klMjBib29rJTIwdGV4dHVyZSUyMGNvdmVyJTIwYXJ0d29ya3xlbnwwfHx8fDE3ODk1NDk1MDN8MA&ixlib=rb-4.1.0&q=85";
+
+// Approximate volume grouping for Reverend Insanity's 2334 chapters
+const VOLUME_SIZE = 260;
+const volumeOf = (chapterNumber, index) => {
+  const n = chapterNumber ?? index;
+  return Math.max(1, Math.ceil(n / VOLUME_SIZE));
+};
 
 const FILTERS = [
   { id: "all", label: "All", testid: TID.chapterFilterAll },
@@ -16,19 +43,30 @@ const FILTERS = [
 ];
 
 export default function TocPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [volume, setVolume] = useState("all");
+  const [sortDesc, setSortDesc] = useState(false);
   const [progress, setProgressState] = useState({});
   const [bookmarks, setBookmarks] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(150);
+  const [visibleCount, setVisibleCount] = useState(120);
+  const [lastReadId, setLastReadId] = useState(null);
 
   useEffect(() => {
     setProgressState(getProgress());
     setBookmarks(getBookmarks());
+    setLastReadId(getLastRead());
   }, []);
 
+  const { data: novel } = useSWR("novel", fetchNovel);
   const { data } = useSWR(["all-chapters"], () => fetchChapters({}));
   const all = data?.items || [];
+
+  const totalVolumes = useMemo(() => {
+    if (!novel) return 9;
+    return Math.max(1, Math.ceil(novel.total_chapters / VOLUME_SIZE));
+  }, [novel]);
 
   const filtered = useMemo(() => {
     let list = all;
@@ -41,128 +79,231 @@ export default function TocPage() {
           String(c.index).includes(q)
       );
     }
-    if (filter === "read") {
-      list = list.filter((c) => progress[c.id]?.completed);
-    } else if (filter === "unread") {
-      list = list.filter((c) => !progress[c.id]?.completed);
-    } else if (filter === "bookmarked") {
+    if (filter === "read") list = list.filter((c) => progress[c.id]?.completed);
+    else if (filter === "unread") list = list.filter((c) => !progress[c.id]?.completed);
+    else if (filter === "bookmarked") {
       const bset = new Set(bookmarks.map((b) => b.chapterId));
       list = list.filter((c) => bset.has(c.id));
     }
+    if (volume !== "all") {
+      const v = parseInt(volume, 10);
+      list = list.filter((c) => volumeOf(c.chapter_number, c.index) === v);
+    }
+    if (sortDesc) list = [...list].reverse();
     return list;
-  }, [all, query, filter, progress, bookmarks]);
+  }, [all, query, filter, volume, sortDesc, progress, bookmarks]);
 
   const shown = filtered.slice(0, visibleCount);
 
   useEffect(() => {
-    setVisibleCount(150);
-  }, [query, filter]);
+    setVisibleCount(120);
+  }, [query, filter, volume, sortDesc]);
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
-      <div className="mb-10">
-        <div className="font-label text-[10px] text-emerald-400 mb-3">Table of Contents</div>
-        <h1 className="font-display text-3xl sm:text-5xl text-emerald-50">
-          The Path — {data?.total?.toLocaleString() || "…"} Chapters
-        </h1>
-        <p className="mt-3 text-slate-400 font-body-serif text-lg max-w-2xl">
-          Search, filter, and jump to any chapter. Your reading progress is remembered on this device.
-        </p>
-      </div>
+    <div className="fog-bg min-h-[calc(100vh-72px)] relative">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+        <button
+          onClick={() => navigate("/")}
+          className="mb-6 inline-flex items-center gap-2 text-slate-400 hover:text-orange-300 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="font-label text-[11px]">Back</span>
+        </button>
 
-      {/* Search & filter bar */}
-      <div className="sticky top-[70px] z-30 backdrop-blur-md bg-black/70 border border-emerald-500/10 rounded-sm p-3 sm:p-4 mb-6 flex flex-col sm:flex-row gap-3 sm:items-center">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-emerald-500/60 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <Input
-            data-testid={TID.chapterSearchInput}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search chapters by number or title…"
-            className="pl-10 bg-black/40 border-emerald-500/20 text-emerald-50 placeholder:text-slate-500 focus-visible:border-emerald-500/60"
-          />
-        </div>
-        <div className="flex gap-1 flex-wrap">
-          {FILTERS.map((f) => (
-            <Button
-              key={f.id}
-              data-testid={f.testid}
-              variant="ghost"
-              onClick={() => setFilter(f.id)}
-              className={`font-label text-[11px] tracking-widest border rounded-sm px-3 sm:px-4 ${
-                filter === f.id
-                  ? "border-emerald-500/50 text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/15"
-                  : "border-transparent text-slate-400 hover:text-emerald-200 hover:bg-emerald-500/5"
-              }`}
-            >
-              {f.label}
-            </Button>
-          ))}
-        </div>
-      </div>
+        <div className="grid lg:grid-cols-[minmax(0,320px)_1fr] gap-8 lg:gap-12">
+          {/* Left: sticky book column */}
+          <aside className="lg:sticky lg:top-24 self-start">
+            <div className="relative">
+              <div className="absolute -inset-6 orange-halo opacity-40 blur-2xl pointer-events-none" />
+              <div className="relative aspect-[3/4] rounded-md overflow-hidden ring-1 ring-white/10 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.8)] max-w-[280px] mx-auto lg:mx-0">
+                <img src={HERO_IMG} alt="Reverend Insanity" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              </div>
+            </div>
 
-      {/* Chapter grid */}
-      {!data ? (
-        <div className="text-center py-20 font-label text-xs text-slate-500">Summoning chapters…</div>
-      ) : shown.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="font-display text-xl text-emerald-50">No chapters found</div>
-          <p className="text-slate-400 mt-2 font-body-serif">Try a different search or filter.</p>
-        </div>
-      ) : (
-        <>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {shown.map((c) => {
-              const p = progress[c.id];
-              const read = !!p?.completed;
-              const inProgress = !read && !!p?.pct;
-              const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
-              return (
-                <Link
-                  key={c.id}
-                  to={`/read/${c.id}`}
-                  data-testid={TID.chapterListItem(c.id)}
-                  className="group border border-emerald-500/10 bg-black/30 p-4 rounded-sm hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-colors flex items-center gap-4"
-                >
-                  <div className="font-display text-xl text-emerald-500/40 group-hover:text-emerald-400 w-12 text-right">
-                    {c.chapter_number ?? c.index}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-body-serif text-base text-emerald-50 truncate">{c.title}</div>
-                    <div className="font-label text-[10px] text-slate-500 mt-1">
-                      {c.word_count.toLocaleString()} words
-                      {inProgress && (
-                        <span className="ml-2 text-emerald-400">· {Math.round(p.pct * 100)}%</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {bookmarked && <Bookmark className="w-3.5 h-3.5 text-amber-400" />}
-                    {read ? (
-                      <Check className="w-4 h-4 text-emerald-400" />
-                    ) : inProgress ? (
-                      <CircleDot className="w-4 h-4 text-emerald-500/70" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-slate-600" />
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          {visibleCount < filtered.length && (
-            <div className="mt-8 text-center">
+            <h1 className="mt-6 font-display text-2xl sm:text-3xl text-slate-100">
+              Reverend Insanity
+            </h1>
+            <div className="mt-1 font-label text-[10px] text-slate-500">
+              By · Gu Zhen Ren (蛊真人)
+            </div>
+
+            <div className="mt-5 flex items-center gap-2">
               <Button
-                onClick={() => setVisibleCount((v) => v + 300)}
-                variant="outline"
-                className="border-emerald-500/30 text-emerald-200 hover:bg-emerald-500/10 font-label tracking-widest text-xs px-6"
+                onClick={() =>
+                  navigate(lastReadId ? `/read/${lastReadId}` : "/read/ch0002")
+                }
+                className="flex-1 rounded-md bg-violet-500/90 hover:bg-violet-500 text-white font-medium h-11 text-sm"
+                data-testid="start-reading-btn"
               >
-                Load more ({filtered.length - visibleCount} remaining)
+                <BookOpen className="w-4 h-4 mr-2" />
+                {lastReadId ? "Continue Reading" : "Start Reading"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/bookmarks")}
+                className="h-11 w-11 rounded-md bg-white/5 border border-white/10 text-slate-300 hover:text-orange-300 hover:border-orange-400/40"
+                title="Bookmarks"
+              >
+                <Bookmark className="w-4 h-4" />
               </Button>
             </div>
-          )}
-        </>
-      )}
+
+            {novel && (
+              <p className="mt-6 font-body-serif text-slate-400 text-[15px] leading-relaxed">
+                {novel.synopsis}
+              </p>
+            )}
+          </aside>
+
+          {/* Right: chapter list */}
+          <div>
+            {/* Search + filters bar */}
+            <div className="sticky top-[76px] z-20 backdrop-blur-md bg-black/60 border border-white/10 rounded-lg p-2 mb-4 flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input
+                  data-testid={TID.chapterSearchInput}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search title or number..."
+                  className="pl-10 bg-black/40 border-white/5 text-slate-100 placeholder:text-slate-500 focus-visible:border-orange-400/40 focus-visible:ring-orange-400/20 h-10"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSortDesc((v) => !v)}
+                className="h-10 w-10 bg-white/5 border border-white/10 text-slate-300 hover:text-orange-300 hover:border-orange-400/40"
+                title={sortDesc ? "Sort ascending" : "Sort descending"}
+                data-testid="sort-toggle"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="h-10 px-3 min-w-[130px] bg-white/5 border border-white/10 rounded-md flex items-center justify-between text-slate-200 hover:border-orange-400/40 text-sm"
+                    data-testid="volume-selector"
+                  >
+                    <span className="font-label text-[11px] text-orange-300">
+                      {volume === "all" ? "ALL VOLUMES" : `VOLUME ${volume}`}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-slate-500" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="bg-[#0E1116] border-white/10 text-slate-200 max-h-72 overflow-y-auto"
+                  align="end"
+                >
+                  <DropdownMenuItem
+                    onSelect={() => setVolume("all")}
+                    className="font-label text-[11px] focus:bg-orange-500/15 focus:text-orange-200"
+                  >
+                    ALL VOLUMES
+                  </DropdownMenuItem>
+                  {Array.from({ length: totalVolumes }, (_, i) => i + 1).map((v) => (
+                    <DropdownMenuItem
+                      key={v}
+                      onSelect={() => setVolume(String(v))}
+                      className="font-label text-[11px] focus:bg-orange-500/15 focus:text-orange-200"
+                    >
+                      VOLUME {v}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Filter tabs */}
+            <div className="flex flex-wrap gap-1 mb-3">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  data-testid={f.testid}
+                  onClick={() => setFilter(f.id)}
+                  className={`font-label text-[10px] tracking-widest rounded-full px-4 h-8 border transition-colors ${
+                    filter === f.id
+                      ? "border-orange-400/50 text-orange-200 bg-orange-500/10"
+                      : "border-white/10 text-slate-400 hover:text-orange-200 hover:border-orange-400/30"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+              <div className="ml-auto font-label text-[10px] text-slate-500 self-center">
+                {filtered.length.toLocaleString()} chapters
+              </div>
+            </div>
+
+            {/* Chapter rows */}
+            {!data ? (
+              <div className="text-center py-24 font-label text-xs text-slate-500">
+                Summoning chapters…
+              </div>
+            ) : shown.length === 0 ? (
+              <div className="text-center py-24">
+                <div className="font-display text-xl text-slate-100">No chapters found</div>
+                <p className="text-slate-400 mt-2 font-body-serif">Try another search or filter.</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-1.5">
+                  {shown.map((c) => {
+                    const p = progress[c.id];
+                    const read = !!p?.completed;
+                    const inProgress = !read && !!p?.pct;
+                    const bookmarked = bookmarks.some((b) => b.chapterId === c.id);
+                    const vol = volumeOf(c.chapter_number, c.index);
+                    return (
+                      <Link
+                        key={c.id}
+                        to={`/read/${c.id}`}
+                        data-testid={TID.chapterListItem(c.id)}
+                        className="group flex items-center gap-4 rounded-md border border-white/5 bg-white/[0.02] hover:bg-orange-500/[0.04] hover:border-orange-400/25 p-4 sm:px-5 transition-colors"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="font-label text-[10px] text-orange-300/90 tracking-widest">
+                            CHAPTER {c.chapter_number ?? c.index}
+                          </div>
+                          <div className="mt-1 font-body-serif text-lg sm:text-xl text-slate-100 truncate">
+                            {c.title.replace(/^chapter\s+\d+\s*[-–—:]\s*/i, "")}
+                          </div>
+                        </div>
+                        <div className="hidden sm:flex items-center gap-3 text-right">
+                          {bookmarked && <Bookmark className="w-3.5 h-3.5 text-orange-300" />}
+                          {read ? (
+                            <Check className="w-4 h-4 text-orange-300" />
+                          ) : inProgress ? (
+                            <CircleDot className="w-4 h-4 text-orange-300/70" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-slate-700" />
+                          )}
+                          <div className="font-label text-[10px] text-slate-500 min-w-[60px]">
+                            VOLUME {vol}
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+                {visibleCount < filtered.length && (
+                  <div className="mt-8 text-center">
+                    <Button
+                      onClick={() => setVisibleCount((v) => v + 300)}
+                      variant="outline"
+                      className="rounded-full border-white/10 bg-white/5 text-slate-200 hover:bg-orange-500/10 hover:text-orange-200 hover:border-orange-400/40 font-medium text-xs px-6"
+                    >
+                      Load more ({(filtered.length - visibleCount).toLocaleString()} remaining)
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

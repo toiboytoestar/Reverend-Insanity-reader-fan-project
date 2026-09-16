@@ -3,7 +3,20 @@ export const TID = {
   siteLogo: "site-logo",
   navToc: "nav-toc",
   navBookmarks: "nav-bookmarks",
+  navHistory: "nav-history",
   navHome: "nav-home",
+
+  // Progress card
+  overallProgressCard: "overall-progress-card",
+  overallProgressPct: "overall-progress-pct",
+
+  // History
+  historyItem: (id) => `history-item-${id}`,
+  historyClearBtn: "history-clear-btn",
+
+  // Reader distraction free
+  readerFullscreenBtn: "reader-fullscreen-btn",
+  readerExitFullscreenBtn: "reader-exit-fullscreen-btn",
 
   // Landing
   continueReadingBtn: "continue-reading-btn",

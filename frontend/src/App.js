@@ -7,6 +7,7 @@ import LandingPage from "@/pages/LandingPage";
 import TocPage from "@/pages/TocPage";
 import ReaderPage from "@/pages/ReaderPage";
 import BookmarksPage from "@/pages/BookmarksPage";
+import HistoryPage from "@/pages/HistoryPage";
 import { ReaderSettingsProvider } from "@/context/ReaderSettings";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
             <Route path="/toc" element={<TocPage />} />
             <Route path="/read/:chapterId" element={<ReaderPage />} />
             <Route path="/bookmarks" element={<BookmarksPage />} />
+            <Route path="/history" element={<HistoryPage />} />
           </Routes>
           <Toaster
             theme="dark"

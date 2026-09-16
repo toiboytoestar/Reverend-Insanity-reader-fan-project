@@ -10,6 +10,7 @@ import {
   setProgress,
   toggleBookmark,
   getProgress,
+  pushHistory,
 } from "@/lib/storage";
 import { useReaderSettings, widthMap, fontFamilyMap } from "@/context/ReaderSettings";
 import ReaderSettingsPanel from "@/components/ReaderSettingsPanel";
@@ -28,6 +29,8 @@ import {
   Keyboard,
   ArrowUp,
   Home,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 const WIDTH_ORDER = ["narrow", "medium", "wide", "full"];
@@ -42,6 +45,7 @@ export default function ReaderPage() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
+  const [distractionFree, setDistractionFree] = useState(false);
   const restoredRef = useRef(false);
   const contentRef = useRef(null);
 
@@ -50,10 +54,20 @@ export default function ReaderPage() {
     () => fetchChapter(chapterId)
   );
 
-  // Track last read
+  // Track last read + history
   useEffect(() => {
     if (chapterId) setLastRead(chapterId);
   }, [chapterId]);
+
+  useEffect(() => {
+    if (!chapter) return;
+    pushHistory({
+      chapterId: chapter.id,
+      index: chapter.index,
+      chapterNumber: chapter.chapter_number,
+      title: chapter.title,
+    });
+  }, [chapter?.id]);
 
   // Bookmark state
   useEffect(() => {
@@ -133,6 +147,29 @@ export default function ReaderPage() {
     update({ width: WIDTH_ORDER[(idx + 1) % WIDTH_ORDER.length] });
   }, [settings.width, update]);
 
+  const toggleDistractionFree = useCallback(async () => {
+    setDistractionFree((v) => {
+      const next = !v;
+      try {
+        if (next && !document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.().catch(() => {});
+        } else if (!next && document.fullscreenElement) {
+          document.exitFullscreen?.().catch(() => {});
+        }
+      } catch (_) {}
+      return next;
+    });
+  }, []);
+
+  // Sync internal state if user exits native fullscreen via Esc
+  useEffect(() => {
+    const onFsChange = () => {
+      if (!document.fullscreenElement) setDistractionFree(false);
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
   // Keyboard shortcuts
   useEffect(() => {
     const onKey = (e) => {
@@ -152,17 +189,20 @@ export default function ReaderPage() {
         setTocOpen((v) => !v);
       } else if (e.key === "f" || e.key === "F") {
         cycleWidth();
+      } else if (e.key === "z" || e.key === "Z") {
+        toggleDistractionFree();
       } else if (e.key === "?") {
         setShortcutsOpen((v) => !v);
       } else if (e.key === "Escape") {
         setSettingsOpen(false);
         setTocOpen(false);
         setShortcutsOpen(false);
+        if (distractionFree) toggleDistractionFree();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev, handleBookmark, cycleWidth]);
+  }, [goNext, goPrev, handleBookmark, cycleWidth, toggleDistractionFree, distractionFree]);
 
   const themeClass = `reader-theme-${settings.theme}`;
   const widthClass = widthMap[settings.width] || widthMap.medium;
@@ -176,6 +216,7 @@ export default function ReaderPage() {
   return (
     <div className={`min-h-screen ${themeClass} reader-pane`} data-testid={TID.readerContainer}>
       {/* Top bar */}
+      {!distractionFree && (
       <div className="sticky top-0 z-30 backdrop-blur-md" style={{ background: "color-mix(in oklab, var(--reader-bg) 80%, transparent)" }}>
         <div className="border-b" style={{ borderColor: "var(--reader-border)" }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
@@ -234,6 +275,17 @@ export default function ReaderPage() {
                 <Settings className="w-4 h-4" />
               </Button>
               <Button
+                data-testid={TID.readerFullscreenBtn}
+                variant="ghost"
+                size="icon"
+                onClick={toggleDistractionFree}
+                className="hover:bg-white/5"
+                style={{ color: "var(--reader-muted)" }}
+                title="Distraction-free (Z)"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </Button>
+              <Button
                 data-testid={TID.readerShortcutsBtn}
                 variant="ghost"
                 size="icon"
@@ -255,6 +307,20 @@ export default function ReaderPage() {
           </div>
         </div>
       </div>
+      )}
+
+      {/* Floating exit fullscreen */}
+      {distractionFree && (
+        <button
+          data-testid={TID.readerExitFullscreenBtn}
+          onClick={toggleDistractionFree}
+          className="fixed top-4 right-4 z-40 w-10 h-10 rounded-full grid place-items-center border backdrop-blur-md hover:opacity-100 opacity-40 transition-opacity"
+          style={{ background: "color-mix(in oklab, var(--reader-bg) 70%, transparent)", borderColor: "var(--reader-border)", color: "var(--reader-muted)" }}
+          title="Exit distraction-free (Z or Esc)"
+        >
+          <Minimize2 className="w-4 h-4" />
+        </button>
+      )}
 
       {/* Chapter content */}
       <div className={`mx-auto px-5 sm:px-8 py-10 sm:py-16 ${widthClass}`}>
@@ -333,6 +399,7 @@ export default function ReaderPage() {
       </div>
 
       {/* Mobile floating bottom bar */}
+      {!distractionFree && (
       <div
         className="sm:hidden fixed bottom-0 inset-x-0 z-30 border-t backdrop-blur-md"
         style={{ background: "color-mix(in oklab, var(--reader-bg) 85%, transparent)", borderColor: "var(--reader-border)" }}
@@ -355,6 +422,7 @@ export default function ReaderPage() {
           </button>
         </div>
       </div>
+      )}
 
       <ReaderSettingsPanel open={settingsOpen} onOpenChange={setSettingsOpen} />
       <TocDrawer open={tocOpen} onOpenChange={setTocOpen} currentId={chapter?.id} />

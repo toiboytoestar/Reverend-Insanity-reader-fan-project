@@ -6,26 +6,27 @@
 
 @layer base {
     :root {
-        --background: 210 15% 6%;
+        /* Beyonder-inspired warm orange + soft violet palette */
+        --background: 214 20% 6%;
         --foreground: 210 20% 92%;
-        --card: 210 14% 9%;
+        --card: 214 18% 9%;
         --card-foreground: 210 20% 92%;
-        --popover: 210 14% 8%;
+        --popover: 214 18% 8%;
         --popover-foreground: 210 20% 92%;
-        --primary: 158 64% 40%;
-        --primary-foreground: 210 20% 98%;
-        --secondary: 210 12% 14%;
+        --primary: 20 78% 66%;             /* warm orange #EC8B60 */
+        --primary-foreground: 20 20% 10%;
+        --secondary: 214 16% 14%;
         --secondary-foreground: 210 20% 92%;
-        --muted: 210 12% 14%;
-        --muted-foreground: 215 16% 60%;
-        --accent: 158 64% 25%;
-        --accent-foreground: 158 60% 90%;
-        --destructive: 350 82% 50%;
+        --muted: 214 16% 14%;
+        --muted-foreground: 215 16% 62%;
+        --accent: 250 78% 70%;             /* soft violet #8B78F0 */
+        --accent-foreground: 250 20% 95%;
+        --destructive: 350 82% 55%;
         --destructive-foreground: 0 0% 98%;
-        --border: 210 15% 18%;
-        --input: 210 15% 14%;
-        --ring: 158 64% 40%;
-        --radius: 0.375rem;
+        --border: 214 18% 18%;
+        --input: 214 18% 14%;
+        --ring: 20 78% 66%;
+        --radius: 0.5rem;
     }
 }
 
@@ -47,44 +48,68 @@
     }
 }
 
-/* Ancient / Xianxia typography helpers */
+/* Typography helpers */
 .font-display {
-    font-family: 'Cinzel Decorative', 'Cormorant Garamond', serif;
-    letter-spacing: 0.02em;
+    font-family: 'Cormorant Garamond', 'Cinzel Decorative', serif;
+    letter-spacing: 0.005em;
+    font-weight: 600;
 }
 .font-label {
     font-family: 'Cinzel', 'Outfit', sans-serif;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 .font-body-serif { font-family: 'Cormorant Garamond', 'Spectral', Georgia, serif; }
 .font-body-sans { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
 .font-body-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
 
-/* Ink noise texture overlay */
-.ink-noise::before {
+/* Beyonder-style mystical fog vortex background — CSS only, no image dependency */
+.fog-bg {
+    position: relative;
+    background-color: #0A0C10;
+    background-image:
+        radial-gradient(ellipse 60% 45% at 72% 38%, rgba(120, 200, 150, 0.14) 0%, rgba(120, 200, 150, 0) 60%),
+        radial-gradient(ellipse 40% 35% at 12% 68%, rgba(220, 90, 70, 0.10) 0%, rgba(220, 90, 70, 0) 60%),
+        radial-gradient(ellipse 70% 60% at 72% 38%, rgba(30, 60, 80, 0.35) 0%, rgba(10, 12, 16, 0) 70%),
+        radial-gradient(ellipse 90% 70% at 50% 100%, rgba(20, 30, 40, 0.5) 0%, rgba(10, 12, 16, 0) 60%),
+        linear-gradient(180deg, #0A0C10 0%, #08090C 100%);
+}
+.fog-bg::before {
+    /* Grain noise overlay */
     content: '';
     position: absolute; inset: 0;
     pointer-events: none;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
     mix-blend-mode: overlay;
 }
 
-/* Jade divider */
-.divider-jade {
+.orange-halo {
+    background: radial-gradient(circle at 50% 50%, rgba(236, 139, 96, 0.25) 0%, rgba(236, 139, 96, 0) 65%);
+}
+.violet-halo {
+    background: radial-gradient(circle at 50% 50%, rgba(139, 120, 240, 0.22) 0%, rgba(139, 120, 240, 0) 65%);
+}
+
+.divider-orange {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(16,185,129,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(236, 139, 96, 0.35), transparent);
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-    background: rgba(16,185,129,0.25);
+    background: rgba(236, 139, 96, 0.22);
     border-radius: 8px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(16,185,129,0.5); }
+::-webkit-scrollbar-thumb:hover { background: rgba(236, 139, 96, 0.45); }
+
+/* Text selection */
+::selection {
+    background: rgba(236, 139, 96, 0.3);
+    color: #fff;
+}
 
 /* Reader themes — apply to the reader pane only */
 .reader-theme-dark {
@@ -93,8 +118,8 @@
     --reader-text: #E2E8F0;
     --reader-muted: #94A3B8;
     --reader-border: #222C33;
-    --reader-accent: #10B981;
-    --reader-highlight: #1E3A2B;
+    --reader-accent: #EC8B60;
+    --reader-highlight: #3A2A1E;
 }
 .reader-theme-sepia {
     --reader-bg: #FBF0D9;
@@ -111,8 +136,8 @@
     --reader-text: #0F172A;
     --reader-muted: #475569;
     --reader-border: #E2E8F0;
-    --reader-accent: #059669;
-    --reader-highlight: #D1FAE5;
+    --reader-accent: #B45309;
+    --reader-highlight: #FDEBD3;
 }
 .reader-theme-black {
     --reader-bg: #000000;
@@ -120,7 +145,7 @@
     --reader-text: #D1D5DB;
     --reader-muted: #6B7280;
     --reader-border: #1F2937;
-    --reader-accent: #06B6D4;
+    --reader-accent: #8B78F0;
     --reader-highlight: #111827;
 }
 
@@ -129,25 +154,17 @@
     color: var(--reader-text);
 }
 .reader-pane a { color: var(--reader-accent); }
-.reader-pane .muted { color: var(--reader-muted); }
 
-/* Subtle entrance animations */
+/* Fade-up entrance */
 @keyframes fade-up {
     0% { opacity: 0; transform: translateY(12px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 .fade-up { animation: fade-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
-/* Radial glow behind hero */
-.jade-halo {
-    background: radial-gradient(circle at 50% 50%, rgba(16,185,129,0.28) 0%, rgba(16,185,129,0) 65%);
-}
-
-/* Prevent selection on labels */
 .no-select { user-select: none; }
 
-/* Focus ring */
 :focus-visible {
-    outline: 2px solid rgba(16,185,129,0.6);
+    outline: 2px solid rgba(236, 139, 96, 0.7);
     outline-offset: 2px;
 }

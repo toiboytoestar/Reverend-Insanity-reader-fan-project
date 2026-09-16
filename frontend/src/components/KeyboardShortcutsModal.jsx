@@ -8,13 +8,14 @@ const SHORTCUTS = [
   { keys: ["S"], desc: "Open reader settings" },
   { keys: ["T"], desc: "Open Table of Contents" },
   { keys: ["F"], desc: "Cycle column width" },
+  { keys: ["Z"], desc: "Distraction-free (fullscreen)" },
   { keys: ["?"], desc: "Open this shortcut guide" },
   { keys: ["Esc"], desc: "Close panels" },
 ];
 
 function Key({ children }) {
   return (
-    <kbd className="px-2 py-1 rounded-sm border border-emerald-500/30 bg-black/50 font-body-mono text-[11px] text-emerald-200 min-w-[28px] text-center">
+    <kbd className="px-2 py-1 rounded-sm border border-orange-500/30 bg-black/50 font-body-mono text-[11px] text-orange-200 min-w-[28px] text-center">
       {children}
     </kbd>
   );
@@ -23,9 +24,9 @@ function Key({ children }) {
 export default function KeyboardShortcutsModal({ open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#0B0D0E] border-emerald-500/20 text-slate-100 max-w-md">
+      <DialogContent className="bg-[#0B0D0E] border-orange-500/20 text-slate-100 max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl text-emerald-50 tracking-widest">
+          <DialogTitle className="font-display text-2xl text-orange-50 tracking-widest">
             Keyboard Shortcuts
           </DialogTitle>
         </DialogHeader>
