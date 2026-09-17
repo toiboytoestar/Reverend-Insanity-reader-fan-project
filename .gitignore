@@ -34,6 +34,8 @@ dist
 
 *token.json*
 *credentials.json*
+*.env
+!.env.example
 
 # Logs and debug files
 npm-debug.log*
@@ -83,3 +85,8 @@ android-sdk/
 
 # overlay black-box crash/user-report dumps — session data, never history
 **/.emergent/recordings/
+
+# Local workspace artifacts
+/exports/
+/.emergent/markers/.restore-complete
+frontend/node_modules/.cache/default-development/0.pack
