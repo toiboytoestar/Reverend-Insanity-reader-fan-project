@@ -32,7 +32,13 @@ jobs:
         working-directory: frontend
         env:
           PUBLIC_URL: /Reverend-Insanity-reader-fan-project
-        run: yarn install --frozen-lockfile && yarn build && cp build/index.html build/404.html
+        run: |
+          yarn install --frozen-lockfile --non-interactive
+          yarn build
+          cp build/index.html build/404.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -48,4 +54,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
