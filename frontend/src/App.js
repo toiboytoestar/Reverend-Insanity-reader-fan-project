@@ -16,7 +16,7 @@ function App() {
   return (
     <div className="App">
       <ReaderSettingsProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.PUBLIC_URL || "/"}>
           <SiteHeader />
           <Routes>
             <Route path="/" element={<LandingPage />} />

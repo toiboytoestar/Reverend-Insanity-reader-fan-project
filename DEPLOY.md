@@ -17,6 +17,13 @@ The Reverend Insanity Reader is a **fully static React app** — the 2,335 chapt
 
 That's it — the deep-linkable SPA routes (`/toc`, `/read/ch0234`, `/history`, `/bookmarks`) are handled by the SPA rewrites in `frontend/vercel.json`, and chapter JSONs are served with 1-year `immutable` cache headers.
 
+## GitHub Pages
+
+The repository includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`.
+After pushing it to `main`, enable **Settings -> Pages -> Source: GitHub Actions** in the repository. Each subsequent push to `main` publishes the frontend at:
+
+`https://toiboytoestar.github.io/Reverend-Insanity-reader-fan-project/`
+
 ## Local dev
 
 ```bash
